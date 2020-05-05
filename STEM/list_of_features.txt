@@ -1,0 +1,30 @@
+From Fall 2018...
+
+1.  Reset initial state (counter) and modify any state number (with
+    constraints).
+2.  Ability to load separate functions (machines) for a single machine.
+3.  Edit a single transition (not entire set).
+4.  Ability to pan (zoom feature).
+5.  Add left click for state movement.
+6.  Deleting a state sometimes leaves dangling self loop transition.
+7.  Ability to change the shape of a transition (arc) and position of
+    the label.
+8.  No error currently for loading an invalid input file.  [DONE}
+9.  No error for not having an accept state. [DONE]
+10. Install a grid-justify function to re-align states.
+11. Be able to color-code states. [DONE]
+12. Be able to accept input files without an extension.
+13. Ability to add a textbox and color-coding for annotating regions of
+    the machine.
+14. Option to reset the tape from the beginning (with original tape input).  [DONE]
+15. Ability to break-point on a selected transition (debug feature).  [DONE]
+
+From Spring 2019...
+
+16. Copying states.
+17. Commenting in-frame.
+18. Moving the head instead of the tape when machine is running.
+19. Scrollable view window.
+20. Allow holding down arrow keys in manual speed setting.
+21. Ability to remove only one of several stack operations on a transition.
+22. Implement click and drag for moving a state.
