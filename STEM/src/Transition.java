@@ -24,7 +24,19 @@ class Transition {
 		LEFT, RIGHT, STAY
 	}
 
-	public Transition(){ }
+	public Transition(){
+		this.path = null;
+		this.toState = null;
+		this.fromState = null;
+		this.moveDirection = null;
+	 }
+
+	public Transition(State toState, State fromState, char readChar, char writeChar){
+		this.toState = toState;
+		this.fromState = fromState;
+		this.readChar = readChar;
+		this.writeChar = writeChar;
+	}
 
 	public Transition(State toState, State fromState, char readChar, char writeChar, Direction moveDirection){
 		this.toState = toState;

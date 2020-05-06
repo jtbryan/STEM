@@ -131,6 +131,10 @@ class State {
 	public ArrayList<Transition> getTransition() {
 		return transition;
 	}
+
+	public void addNewTransition(Transition newTransition){
+		this.transition.add(newTransition);
+	}
 	
 	public void setTransition(ArrayList<Transition> transition) {
 		this.transition = transition;
@@ -158,9 +162,7 @@ class State {
 		clone.name = this.name;
 		clone.x = this.x;
 		clone.y = this.y;
-		clone.label = this.label;
-		clone.circle = this.circle;
-		clone.transition = this.transition;
+		clone.transition = new ArrayList<>();
 		clone.baseColor = this.baseColor;
 
 		return clone;

@@ -463,43 +463,96 @@ class Editor {
 
 		MenuItem copyState = new MenuItem("Copy State");
 		copyState.setOnAction(event -> {
-			State s1 = (State) contextMenu.getOwnerNode().getUserData();
-			State s = s1.cloneState();
-			System.out.println(s1);
-			System.out.println(s.getLabel());
+			State originState = (State) contextMenu.getOwnerNode().getUserData();
+			State s = originState.cloneState();
 			Double initialX = s.getX();
 			Double initialY = s.getY();
+			String name;
 			ArrayList<Transition> tl = new ArrayList<>();
 
 			// Figure out what the name of the state should be;
-			String name;
 			if (deletedValues.isEmpty()) {
 				name = Integer.toString(stateNextVal);
-				System.out.println(stateNextVal);
 				stateNextVal++;
 			} else {
 				int minIndex = deletedValues.indexOf(Collections.min(deletedValues));
 				int savedVal = deletedValues.get(minIndex);
 				deletedValues.remove(minIndex);
-				System.out.println(savedVal);
 				name = Integer.toString(savedVal);
 			}
 
-			s.setCircleId(name);
-			s.setLabelId(name);
-			s.setName(name);
+			Circle c = new Circle(s.getX(), s.getY(), circleRadius, Color.LIGHTGOLDENRODYELLOW);
+			c.setId(name);
+			c.setStrokeWidth(2);
+			c.setStroke(Color.BLACK);
 
-			tl.addAll(s.getTransition());
-			for(Transition t : currentMachine.getTransitions()){
-				if(t.getToState() == s && t.getToState() != t.getFromState()){
-					System.out.printf("Adding Transiton %s -> %s, %c ; %c ; %c\n", t.getFromState().getName(), t.getToState().getName(),
-							t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
-					tl.add(t);
+			Text t = new Text(name);
+			t.setId(name);
+			t.setX(c.getCenterX() - (t.getLayoutBounds().getWidth() / 2));
+			t.setY(c.getCenterY() + (t.getLayoutBounds().getHeight() / 4));
+
+			s.setName(name);
+			s.setCircle(c);
+			s.setLabel(t);
+			c.setUserData(s);
+			t.setUserData(s);			
+
+			c.setOnContextMenuRequested(event1 -> {
+				contextMenu.show(c,event1.getScreenX(), event1.getScreenY());
+			});
+			t.setOnContextMenuRequested(event2 -> {
+				contextMenu.show(t,event2.getScreenX(),event2.getScreenY());
+			});
+
+			Transition clonedTransition = null;
+			// loop through all outgoing transitions associated with the state
+			for(Transition tr : originState.getTransition()){
+				// self loop
+				if(tr.getFromState() == tr.getToState()){
+					clonedTransition = cloneTransition(s, s, tr.getReadChar(), tr.getWriteChar());
+					clonedTransition.setMoveDirection(tr.getMoveDirection());
 				}
+				// outgoing transition
+				else{
+					clonedTransition = cloneTransition(s, tr.getToState(), tr.getReadChar(), tr.getWriteChar());
+					clonedTransition.setMoveDirection(tr.getMoveDirection());
+				}
+
+				s.addNewTransition(clonedTransition);
+				currentMachine.getTransitions().add(clonedTransition); // add the new transition to the machine
+				Path path = new Path(clonedTransition.getFromState(), clonedTransition.getToState()); // setup a new path between the new from state and old destination
+				currentMachine.getPaths().add(path); // add the new path to the machine
+				clonedTransition.setPath(path); // set the transitions new path
+			}			
+
+			// check for incoming transitions
+			ArrayList<Transition> container = new ArrayList<>();
+			for(Transition tr : currentMachine.getTransitions()){ // loop through all transitions in the machine
+				if(tr.getToState() == originState && tr.getToState() != tr.getFromState()){
+					clonedTransition = cloneTransition(tr.getFromState(), s, tr.getReadChar(), tr.getWriteChar());
+					clonedTransition.setMoveDirection(tr.getMoveDirection());
+					container.add(clonedTransition);			
+				}			
 			}
 
-			toggleGroup.selectToggle(null);
-			editorSpace.setCursor(Cursor.DEFAULT);
+			for(Transition tr : container){
+
+				currentMachine.getTransitions().add(tr); // add the new transition to the machine
+				Path path = new Path(tr.getFromState(), tr.getToState()); // setup a new path between the new from state and old destination
+				currentMachine.getPaths().add(path); // add the new path to the machine
+				clonedTransition.setPath(path); // set the transitions new path
+			}
+
+			tl.addAll(s.getTransition()); // add all transitions to t1 from the new state
+			for(Transition tr : currentMachine.getTransitions()){ // loop through all transitions in the machine
+				// if the transition is incoming
+				if(tr.getToState() == s && tr.getToState() != tr.getFromState()){
+					System.out.printf("Adding Transiton %s -> %s, %c ; %c ; %c\n", tr.getFromState().getName(), tr.getToState().getName(),
+							tr.getReadChar(), tr.getWriteChar(), tr.getMoveDirection().toString().charAt(0));
+					
+					tl.add(tr);
+				}
+			}
 
 			for (Node n : bar.getItems()) {
 				if (n instanceof ToggleButton || n instanceof Button || n instanceof SplitMenuButton)
@@ -558,6 +611,8 @@ class Editor {
 
 			editorSpace.addEventHandler(MouseEvent.MOUSE_MOVED, move);
 			editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
+			currentMachine.addState(s);
+			editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
 		});
 
 		contextMenu.getItems().addAll(setStart, toggleAccept, moveState, copyState, setBreak, setColor);
@@ -580,6 +635,7 @@ class Editor {
 	    SaveLoad saveLoad = new SaveLoad();
 
 		machineFile = m.toString();
+		System.out.println(machineFile);
 	    return saveLoad.saveMachine(window, m);
 	}
 
@@ -910,6 +966,11 @@ class Editor {
 			System.out.printf("Transition: %s -> %s %c %c %s\n", t.createdTransition.getFromState().getName(), t.createdTransition.getToState().getName(),
 					t.createdTransition.getReadChar(), t.createdTransition.getWriteChar(), t.createdTransition.getMoveDirection().toString());
 
+		return t.createdTransition;
+	}
+
+	private Transition cloneTransition(State from, State to, char read, char write) {
+		TransitionEditor t = new TransitionEditor(window ,from, to, read, write);
 		return t.createdTransition;
 	}
 

@@ -205,6 +205,10 @@ public class TransitionEditor {
         transitionEditor.showAndWait();
     }
 
+    public TransitionEditor(Stage window, State from, State to, char read, char write){
+        createdTransition = new Transition(to, from, read, write);
+    }
+
     private boolean containsIllegalCharacters(String s){
         char s_arr[] = s.trim().toCharArray();
 
