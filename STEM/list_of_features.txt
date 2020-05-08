@@ -21,10 +21,11 @@ From Fall 2018...
 
 From Spring 2019...
 
-16. Copying states.
+16. Copying states. [THIS IS NOW DONE BY ME]
 17. Commenting in-frame.
 18. Moving the head instead of the tape when machine is running.
 19. Scrollable view window.
 20. Allow holding down arrow keys in manual speed setting.
+    [I ADDED AN OPTION TO CHANGE SPEEDS WITH ARROW KEYS WHILE MACHINE IS RUNNING]
 21. Ability to remove only one of several stack operations on a transition.
 22. Implement click and drag for moving a state.

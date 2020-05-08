@@ -23,6 +23,7 @@ public class Tester {
     private String failReason;
     private boolean succeeded;
     private int loops;
+    private int curSpeed;
     private boolean cont;
 
     public boolean isCont() {
@@ -41,6 +42,14 @@ public class Tester {
 
     public boolean didSucceed() {
         return succeeded;
+    }
+
+    public void setCurSpeed(int speed) {
+        this.curSpeed = speed;
+    }
+
+    public int getCurSpeed() {
+        return curSpeed;
     }
 
     public Transition nextTransition(State currentState, Tape tape){
@@ -84,15 +93,16 @@ public class Tester {
             return null;
         }
 
-        int waitTime = m.getSpeed();
+        setCurSpeed(m.getSpeed());
+
+        setCont(true);
 
         loops = 0;
 
         // Main body
 
         Transition next = this.nextTransition(currentState, m.getTape());
-        while(next != null) {
-
+        while(next != null && cont != false) {
 
             // Set the color of the selected State
             if(currentState.getCircle() != null){
@@ -113,7 +123,7 @@ public class Tester {
                     currentState.getName(), next.getToState().getName(),
                     next.getReadChar(), next.getWriteChar(), next.getMoveDirection().toString().charAt(0));
 
-            TimeUnit.MILLISECONDS.sleep(waitTime);
+            TimeUnit.MILLISECONDS.sleep(curSpeed);
             switch(next.getMoveDirection()){
                 case LEFT:
                     tape.left();
@@ -158,7 +168,7 @@ public class Tester {
             m.getTape().refreshTapeDisplay();
         });
 
-        TimeUnit.MILLISECONDS.sleep(waitTime);
+        TimeUnit.MILLISECONDS.sleep(curSpeed);
         if(currentState.getCircle() != null) {
             currentState.setColor(currentState.getBaseColor());
             currentState.getCircle().setFill(currentState.getBaseColor());

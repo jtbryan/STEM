@@ -1096,6 +1096,7 @@ class Editor {
 			EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
 				@Override
 				public void handle(KeyEvent keyEvent) {
+					System.out.println(keyEvent.getCode());
 					if (keyEvent.getCode() == KeyCode.ESCAPE) {
 						thisButton.fire();
 						System.out.println("ESC");
@@ -1104,7 +1105,7 @@ class Editor {
 					}
 					else if(keyEvent.getCode() == KeyCode.RIGHT) {
 						State currentState;
-
+												System.out.println("ESC");
 						if(machineSteps.size() == 0){
 							currentState = currentMachine.getStartState();
 						}
@@ -1223,18 +1224,27 @@ class Editor {
 					b.setDisable(false);
 
 				machineSteps.clear();
-				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+				editorSpace.removeEventHandler(KeyEvent.KEY_PRESSED, keyPress);
 
 				System.out.println(machineSteps.size());
 				thisButton.setText("Run Machine");
 				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
 			});
 
-			window.addEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+			editorSpace.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
 			currentMachine.getStartState().getCircle().setFill(Color.GREENYELLOW);
 			t.requestFocus();
 		}
 		else {
+			String speedText = currentMachine.getSpeed() == 500 ? "Slow" : currentMachine.getSpeed() == 250 ? "Normal" : currentMachine.getSpeed() == 75 ? "Fast" : currentMachine.getSpeed() == 0 ? "No Delay" : "Unknown";
+			ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
+				() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
+			Text t = new Text( "<Up Arrow> Increase Speed  <Down Arrow> Decrease Speed  <Esc> Stop Machine \tCurrent Speed: " + speedText);
+			t.xProperty().bind(editorSpace.widthProperty().divide(10));
+			t.yProperty().bind(editorSpace.heightProperty());
+			t.fontProperty().bind(textTrack);
+			editorSpace.getChildren().add(t);
+
 			Task<Void> task = new Task<Void>() {
 				@Override
 				public Void call() {
@@ -1298,6 +1308,38 @@ class Editor {
 					return null;
 				}
 			};
+			EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
+				@Override
+				public void handle(KeyEvent keyEvent) {
+					if (keyEvent.getCode() == KeyCode.ESCAPE) {
+						thisButton.fire();
+						System.out.println("ESC");
+						editorSpace.getChildren().remove(t);
+						task.cancel();
+						keyEvent.consume();
+					}
+					else if (keyEvent.getCode() == KeyCode.UP) {
+						int nextSpeed = currentMachine.getSpeed() == 500 ? 250 : currentMachine.getSpeed() == 250 ? 75 : currentMachine.getSpeed() == 75 ? 0 : currentMachine.getSpeed();
+						currentMachine.setSpeed(nextSpeed);
+						tester.setCurSpeed(currentMachine.getSpeed());
+						System.out.println("Speeding up");
+
+						String speedText = currentMachine.getSpeed() == 500 ? "Slow" : currentMachine.getSpeed() == 250 ? "Normal" : currentMachine.getSpeed() == 75 ? "Fast" : currentMachine.getSpeed() == 0 ? "No Delay" : "Unknown";
+						t.setText("<Up Arrow> Increase Speed  <Down Arrow> Decrease Speed  <Esc> Stop Machine \tCurrent Speed: " + speedText);
+					}
+					else if (keyEvent.getCode() == KeyCode.DOWN) {
+						int nextSpeed = currentMachine.getSpeed() == 0 ? 75 : currentMachine.getSpeed() == 75 ? 250 : currentMachine.getSpeed() == 250 ? 500 : currentMachine.getSpeed();
+						currentMachine.setSpeed(nextSpeed);
+						tester.setCurSpeed(currentMachine.getSpeed());
+						System.out.println("Slowing down");
+	
+						String speedText = currentMachine.getSpeed() == 500 ? "Slow" : currentMachine.getSpeed() == 250 ? "Normal" : currentMachine.getSpeed() == 75 ? "Fast" : currentMachine.getSpeed() == 0 ? "No Delay" : "Unknown";
+						t.setText("<Up Arrow> Increase Speed  <Down Arrow> Decrease Speed  <Esc> Stop Machine \tCurrent Speed: " + speedText);
+					}
+					t.requestFocus();
+				}
+			};
+
 			task.setOnSucceeded(event -> {
 				currentMachine.getTape().refreshTapeDisplay();
 
@@ -1321,6 +1363,11 @@ class Editor {
 
 				for (Node b : args)
 					b.setDisable(false);
+
+				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+				editorSpace.getChildren().remove(t);
+				task.cancel();
+				tester.setCont(false);
 			});
 			task.setOnCancelled(event -> {
 				currentMachine.getTape().refreshTapeDisplay();
@@ -1331,14 +1378,35 @@ class Editor {
 				for (Node b : args)
 					b.setDisable(false);
 
+				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+				editorSpace.getChildren().remove(t);
+				task.cancel();
+
 				thisButton.setText("Run Machine");
 				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
+				tester.setCont(false);
 			});
 
 			thisButton.setText("Stop Machine");
-			thisButton.setOnAction(event -> task.cancel());
+			thisButton.setOnAction(event -> {
+
+				currentMachine.getTape().refreshTapeDisplay();
+
+				for (State s : currentMachine.getStates())
+					s.getCircle().setFill(s.getBaseColor());
+
+				for (Node b : args)
+					b.setDisable(false);
+
+				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+				editorSpace.getChildren().remove(t);
+				task.cancel();
+				tester.setCont(false);
+			});
 
 			new Thread(task).start();
+			window.addEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+			t.requestFocus();
 		}
 	}
 

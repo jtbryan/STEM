@@ -85,7 +85,7 @@ class Machine {
 	}
 
 	public void setSpeed(int speed) {
-	    System.out.printf("Speed: %d", speed);
+	    System.out.printf("Speed: %d\n", speed);
 		this.speed = speed;
 	}
 
