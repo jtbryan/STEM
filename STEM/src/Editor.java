@@ -81,18 +81,6 @@ class Editor {
 		BorderPane tapeArea = new BorderPane();
 		this.tapeArea = tapeArea;
 		editorSpace = new Pane();
-		// allows the user to zoom in and out
-		editorSpace.setOnScroll((e) -> {
-			double zoomFactor = 1.05;
-			double deltaY = e.getDeltaY();
-
-			if(deltaY < 0){
-				zoomFactor = 0.95;
-			}
-			editorSpace.setScaleX(editorSpace.getScaleX() * zoomFactor);
-			editorSpace.setScaleY(editorSpace.getScaleY() * zoomFactor);
-			e.consume();
-		});
 
 		pane.setCenter(editorSpace);
 		pane.setBottom(tapeArea);
