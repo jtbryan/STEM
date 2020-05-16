@@ -225,6 +225,12 @@ class Editor {
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 
+		ToggleButton editTransition = new ToggleButton("Edit Transition");
+		editTransition.fontProperty().bind(barTextTrack);
+		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(7));
+		editTransition.setUserData("Edit Transition");
+		editTransition.setToggleGroup(toggleGroup);
+
 		// END TOGGLE BUTTONS
 
 		Separator separator = new Separator();
@@ -259,7 +265,7 @@ class Editor {
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
-		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton, resetButton));
+		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton));
 
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
@@ -272,7 +278,7 @@ class Editor {
 		backButton.setOnAction(e->deleteEditor(window, prev, currentMachine));
 
 		// Add toggle buttons
-		bar.getItems().addAll(addState, addTransition, deleteState);
+		bar.getItems().addAll(addState, addTransition, deleteState, editTransition);
 
 		// Add separator
 		bar.getItems().add(separator);
@@ -702,6 +708,7 @@ class Editor {
 			}
 			for (Path p : currentMachine.getPaths())
 				p.setTextFillColor(Color.BLACK);
+			redrawAllPaths();
 
 			//   _   _
 			//  | \ | | ___  _ __   ___
@@ -852,6 +859,7 @@ class Editor {
 
 						for(Path p : currentMachine.getPaths())
 							System.out.println(p.toString());
+						
 					}
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
@@ -941,6 +949,35 @@ class Editor {
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
+			//	 ____
+			//  |  __|    _       _     _   _____                    _ _   _
+			//  | |__    / \   __| | __| | |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __
+			//  |  __|  / _ \ / _` |/ _` |   | || '__/ _` | '_ \/ __| | __| |/ _ \| '_ \
+			//  | |__  / ___ \ (_| | (_| |   | || | | (_| | | | \__ \ | |_| | (_) | | | |
+			//  |____|/_/   \_\__,_|\__,_|   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_|
+			//
+			else if (new_toggle.getUserData() == "Edit Transition"){
+				System.out.println(new_toggle.getUserData());
+
+				for (Path p : currentMachine.getPaths())
+					p.setTextFillColor(Color.DARKGREEN);
+
+				currentHandler = event -> {
+					if(event.getButton() == MouseButton.PRIMARY && event.getTarget() instanceof Text){
+
+						Object Target = ((Node) event.getTarget()).getUserData();
+
+						if(Target instanceof Transition){
+							Transition targetTransition;
+
+							targetTransition = (Transition) Target;
+
+							editTransition(targetTransition);
+						}
+					}
+				};
+				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
+			}
 		});
 	}
 
@@ -967,6 +1004,22 @@ class Editor {
 					t.createdTransition.getReadChar(), t.createdTransition.getWriteChar(), t.createdTransition.getMoveDirection().toString());
 
 		return t.createdTransition;
+	}
+
+	private void editTransition(Transition transition) {
+		// This window suspends until Transition editor is done.
+		TransitionEditor t = new TransitionEditor(window, transition.getPath());
+/*
+		// Check if transition is valid is done.
+		if(t.createdTransition == null)
+			System.out.println("null");
+		else
+			System.out.printf("Transition: %s -> %s %c %c %s\n", t.createdTransition.getFromState().getName(), t.createdTransition.getToState().getName(),
+					t.createdTransition.getReadChar(), t.createdTransition.getWriteChar(), t.createdTransition.getMoveDirection().toString());
+
+		return t.createdTransition;
+*/
+		System.out.println("Hi");
 	}
 
 	private Transition cloneTransition(State from, State to, char read, char write) {
@@ -1012,7 +1065,7 @@ class Editor {
 		Optional<String> result = tapeEdit.showAndWait();
 		result.ifPresent(tapeString -> {
 			ArrayList<Character> characters = new ArrayList<>();
-			for(Character c: tapeString.toCharArray()) {
+			for(Character c : tapeString.toCharArray()) {
 				if (c >= 32 && c < 126) {
 					characters.add(c);
 				}

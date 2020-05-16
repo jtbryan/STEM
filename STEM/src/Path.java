@@ -272,6 +272,14 @@ public class Path {
             return (a == state1 || a == state2) && (b == state1 || b == state2);
     }
 
+    public State getStateOne(){
+        return state1;
+    }
+
+    public State getStateTwo(){
+        return state2;
+    }
+
     public ArrayList<State> getStates(){
         ArrayList<State> ret = new ArrayList<>();
 

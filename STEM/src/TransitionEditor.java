@@ -16,14 +16,19 @@
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectExpression;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.Group;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -202,6 +207,49 @@ public class TransitionEditor {
         transitionEditor.setMinWidth(300);
         transitionEditor.minHeightProperty().bind(borderPane.widthProperty().divide(1.5));
 
+        transitionEditor.showAndWait();
+    }
+
+    public TransitionEditor(Stage window, Path path){
+        Stage transitionEditor = new Stage();
+        transitionEditor.initModality(Modality.APPLICATION_MODAL);
+        transitionEditor.initOwner(window);
+
+        TableView table = new TableView();
+        Label label = new Label("List of transitions");
+        label.setFont(new Font("Arial", 20));
+        table.setEditable(true);
+ 
+        TableColumn read = new TableColumn("Read");
+        read.setCellValueFactory(new PropertyValueFactory<Transition, Character>("ReadChar"));
+        TableColumn write = new TableColumn("Write");
+        write.setCellValueFactory(new PropertyValueFactory<Transition, Character>("WriteChar"));
+        TableColumn direction = new TableColumn("Direction");
+        direction.setCellValueFactory(new PropertyValueFactory<Transition, Character>("DirectionChar"));
+        ObservableList<Transition> list = FXCollections.observableArrayList();
+
+        table.setItems(list);
+        
+        if(path.getStateOne() != path.getStateTwo()){
+            for(State s : path.getStates()){
+                if(s.getTransition().size() > 0){
+                    for(Transition t : s.getTransition()){
+                        list.add(t);
+                    }
+                }
+            }
+        }
+        else{
+            if(path.getStateOne().getTransition().size() > 0){
+                for(Transition t : path.getStateOne().getTransition()){
+                    list.add(t);
+                }
+            }
+        }
+        table.getColumns().addAll(read, write, direction);
+        VBox vbox = new VBox(table);
+        Scene popUp = new Scene(vbox);
+        transitionEditor.setScene(popUp);
         transitionEditor.showAndWait();
     }
 

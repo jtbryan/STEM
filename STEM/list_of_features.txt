@@ -29,3 +29,4 @@ From Spring 2019...
     [I ADDED AN OPTION TO CHANGE SPEEDS WITH ARROW KEYS WHILE MACHINE IS RUNNING]
 21. Ability to remove only one of several stack operations on a transition.
 22. Implement click and drag for moving a state.
+23. Implement edit transition menu item to edit/add/delete transitions

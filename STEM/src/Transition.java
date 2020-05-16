@@ -13,7 +13,7 @@
  *     GNU General Public License for more details.
  */
 
-class Transition {
+public class Transition {
     private Path path;
 	private State toState;
 	private State fromState;
@@ -78,6 +78,19 @@ class Transition {
 		this.writeChar = writeChar;
 	}
 	
+	public char getDirectionChar(){
+		if(this.moveDirection == Direction.RIGHT){
+			return 'R';
+		}
+		else if(this.moveDirection == Direction.LEFT){
+			return 'L';
+		}
+		else if(this.moveDirection == Direction.STAY){
+			return 'S';
+		}
+		return 'U';
+	}
+
 	public Direction getMoveDirection(){
 		return moveDirection;
 	}
