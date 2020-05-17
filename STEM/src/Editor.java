@@ -215,19 +215,19 @@ class Editor {
 		
 		ToggleButton deleteState = new ToggleButton("Delete Value");
 		deleteState.fontProperty().bind(barTextTrack);
-		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(7));
+		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(9));
 		deleteState.setUserData("Delete Value");
 		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.fontProperty().bind(barTextTrack);
-		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(7));
+		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(9));
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 
 		ToggleButton editTransition = new ToggleButton("Edit Transition");
 		editTransition.fontProperty().bind(barTextTrack);
-		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(7));
+		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(11));
 		editTransition.setUserData("Edit Transition");
 		editTransition.setToggleGroup(toggleGroup);
 
@@ -240,7 +240,7 @@ class Editor {
 		
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
-		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(7));
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		//New Reset Button
@@ -1009,17 +1009,9 @@ class Editor {
 	private void editTransition(Transition transition) {
 		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window, transition.getPath());
-/*
-		// Check if transition is valid is done.
-		if(t.createdTransition == null)
-			System.out.println("null");
-		else
-			System.out.printf("Transition: %s -> %s %c %c %s\n", t.createdTransition.getFromState().getName(), t.createdTransition.getToState().getName(),
-					t.createdTransition.getReadChar(), t.createdTransition.getWriteChar(), t.createdTransition.getMoveDirection().toString());
-
-		return t.createdTransition;
-*/
-		System.out.println("Hi");
+		redrawAllPaths();
+		for (Path p : currentMachine.getPaths())
+			p.setTextFillColor(Color.DARKGREEN);
 	}
 
 	private Transition cloneTransition(State from, State to, char read, char write) {

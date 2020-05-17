@@ -18,11 +18,14 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -212,6 +215,10 @@ public class TransitionEditor {
 
     public TransitionEditor(Stage window, Path path){
         Stage transitionEditor = new Stage();
+        transitionEditor.setTitle("Transition Editor");
+        transitionEditor.setWidth(325);
+        transitionEditor.setHeight(400);
+        transitionEditor.setResizable(false);
         transitionEditor.initModality(Modality.APPLICATION_MODAL);
         transitionEditor.initOwner(window);
 
@@ -220,21 +227,95 @@ public class TransitionEditor {
         label.setFont(new Font("Arial", 20));
         table.setEditable(true);
  
+        TableColumn FromS = new TableColumn("From State");
+        FromS.setCellValueFactory(new PropertyValueFactory<Transition, String>("FromStateName"));
+        TableColumn ToS = new TableColumn("To State");
+        ToS.setCellValueFactory(new PropertyValueFactory<Transition, String>("ToStateName"));
         TableColumn read = new TableColumn("Read");
-        read.setCellValueFactory(new PropertyValueFactory<Transition, Character>("ReadChar"));
+        read.setCellValueFactory(new PropertyValueFactory<Transition, String>("ReadString"));
+        read.setCellFactory(TextFieldTableCell.forTableColumn());
+        read.setOnEditCommit(
+            new EventHandler<CellEditEvent<Transition, String>>(){
+                @Override
+                public void handle(CellEditEvent<Transition, String> t) {
+                    if(t.getNewValue().length() == 1){
+                        ((Transition) t.getTableView().getItems().get(t.getTablePosition().getRow())).setReadChar(t.getNewValue().charAt(0));
+                        t.getTableView().refresh();
+                    }
+                    else{
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+						alert.initOwner(window);
+						alert.initModality(Modality.APPLICATION_MODAL);
+						alert.setTitle("Incorrect Transition");
+						alert.setHeaderText("Read can only be 1 character in length.");
+                        alert.showAndWait();
+                        t.getTableView().refresh();
+                    }
+                }
+            }
+        );
         TableColumn write = new TableColumn("Write");
-        write.setCellValueFactory(new PropertyValueFactory<Transition, Character>("WriteChar"));
+        write.setCellValueFactory(new PropertyValueFactory<Transition, String>("WriteString"));
+        write.setCellFactory(TextFieldTableCell.forTableColumn());
+        write.setOnEditCommit(
+            new EventHandler<CellEditEvent<Transition, String>>(){
+                @Override
+                public void handle(CellEditEvent<Transition, String> t) {
+                    if(t.getNewValue().length() == 1){
+                        ((Transition) t.getTableView().getItems().get(t.getTablePosition().getRow())).setWriteChar(t.getNewValue().charAt(0));
+                        t.getTableView().refresh();
+                    }
+                    else{
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+						alert.initOwner(window);
+						alert.initModality(Modality.APPLICATION_MODAL);
+						alert.setTitle("Incorrect Transition");
+						alert.setHeaderText("Write can only be 1 character in length.");
+                        alert.showAndWait();
+                        t.getTableView().refresh();
+                    }
+                }
+            }
+        );
         TableColumn direction = new TableColumn("Direction");
-        direction.setCellValueFactory(new PropertyValueFactory<Transition, Character>("DirectionChar"));
+        direction.setCellValueFactory(new PropertyValueFactory<Transition, String>("DirectionChar"));
+        direction.setCellFactory(TextFieldTableCell.forTableColumn());
+        direction.setOnEditCommit(
+            new EventHandler<CellEditEvent<Transition, String>>(){
+                @Override
+                public void handle(CellEditEvent<Transition, String> t) {
+                    if(t.getNewValue().charAt(0) == 'L' || t.getNewValue().charAt(0) == 'R' || t.getNewValue().charAt(0) == 'S'){
+                        ((Transition) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDirectionChar(t.getNewValue().charAt(0));
+                        t.getTableView().refresh();
+                    }
+                    else{
+                        System.out.println("This is our value: " + t.getNewValue());
+                        System.out.println("This is our length: " + t.getNewValue().length());
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+						alert.initOwner(window);
+						alert.initModality(Modality.APPLICATION_MODAL);
+						alert.setTitle("Incorrect Transition");
+						alert.setHeaderText("Direction must be 'L', 'R', or 'S'");
+                        alert.showAndWait();
+                        t.getTableView().refresh();
+                    }
+                }
+            }
+        );
+
         ObservableList<Transition> list = FXCollections.observableArrayList();
 
         table.setItems(list);
         
+        // if it is not a self loop
         if(path.getStateOne() != path.getStateTwo()){
             for(State s : path.getStates()){
                 if(s.getTransition().size() > 0){
                     for(Transition t : s.getTransition()){
-                        list.add(t);
+                        if((t.getToState() == path.getStateTwo() && t.getFromState() == path.getStateOne()) || 
+                            (t.getToState() == path.getStateOne() && t.getFromState() == path.getStateTwo())){
+                            list.add(t);
+                        }
                     }
                 }
             }
@@ -242,11 +323,13 @@ public class TransitionEditor {
         else{
             if(path.getStateOne().getTransition().size() > 0){
                 for(Transition t : path.getStateOne().getTransition()){
-                    list.add(t);
+                    if(t.getFromState() == t.getToState()){
+                        list.add(t);
+                    }
                 }
             }
         }
-        table.getColumns().addAll(read, write, direction);
+        table.getColumns().addAll(FromS, ToS, read, write, direction);
         VBox vbox = new VBox(table);
         Scene popUp = new Scene(vbox);
         transitionEditor.setScene(popUp);

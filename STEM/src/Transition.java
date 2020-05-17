@@ -50,6 +50,10 @@ public class Transition {
 		return toState;
 	}
 	
+	public String getToStateName() {
+		return toState.getName();
+	}	
+
 	public void setToState(State toState) {
 		this.toState = toState;
 	}
@@ -57,6 +61,10 @@ public class Transition {
 	public State getFromState() {
 		return fromState;
 	}
+
+	public String getFromStateName() {
+		return fromState.getName();
+	}	
 	
 	public void setFromState(State fromState) {
 		this.fromState = fromState;
@@ -65,30 +73,50 @@ public class Transition {
 	public char getReadChar() {
 		return readChar;
 	}
+
+	public String getReadString() {
+		return Character.toString(readChar);
+	}
 	
 	public void setReadChar(char readChar) {
 		this.readChar = readChar;
 	}
-	
+
 	public char getWriteChar() {
 		return writeChar;
+	}
+
+	public String getWriteString() {
+		return Character.toString(writeChar);
 	}
 	
 	public void setWriteChar(char writeChar) {
 		this.writeChar = writeChar;
 	}
 	
-	public char getDirectionChar(){
+	public String getDirectionChar(){
 		if(this.moveDirection == Direction.RIGHT){
-			return 'R';
+			return "R";
 		}
 		else if(this.moveDirection == Direction.LEFT){
-			return 'L';
+			return "L";
 		}
 		else if(this.moveDirection == Direction.STAY){
-			return 'S';
+			return "S";
 		}
-		return 'U';
+		return "Error";
+	}
+
+	public void setDirectionChar(char direction){
+		if(direction == 'R'){
+			this.moveDirection = Direction.RIGHT;
+		}
+		else if(direction == 'L'){
+			this.moveDirection = Direction.LEFT;
+		}
+		else{
+			this.moveDirection = Direction.STAY;
+		}
 	}
 
 	public Direction getMoveDirection(){
