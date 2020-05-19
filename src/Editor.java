@@ -67,6 +67,7 @@ class Editor {
 	private ContextMenu contextMenu = initContextMenu();
 	private String machineFile;
 	private BorderPane tapeArea;
+	private Text machineSpeed;
 	//private Integer tapeDisplayOffset;
 
 	void setCircleRadius(int size){
@@ -251,21 +252,40 @@ class Editor {
 
 		// Run Machine with options for speed
 		MenuItem manualControl = new MenuItem("Manual");
-		manualControl.setOnAction(e -> currentMachine.setSpeed(-1));
 		MenuItem slow = new MenuItem("Slow");
-		slow.setOnAction(e -> currentMachine.setSpeed(500));
+		slow.setOnAction(e -> {
+			currentMachine.setSpeed(500);
+			machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+		});
 		MenuItem normal = new MenuItem("Normal");
-		normal.setOnAction(e -> currentMachine.setSpeed(250));
+		normal.setOnAction(e -> {
+			currentMachine.setSpeed(250);
+			machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+		});
 		MenuItem fast = new MenuItem("Fast");
-		fast.setOnAction(e -> currentMachine.setSpeed(75));
+		fast.setOnAction(e -> {
+			currentMachine.setSpeed(75);
+			machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+		});
 		MenuItem noDelay = new MenuItem("No Delay");
-		noDelay.setOnAction(e -> currentMachine.setSpeed(0));
+		noDelay.setOnAction(e -> {
+			currentMachine.setSpeed(0);
+			machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+		});
 
 		SplitMenuButton runMachine = new SplitMenuButton(manualControl, slow, normal, fast, noDelay);
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
 		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton));
+
+		manualControl.setOnAction(e -> {
+			int oldSpeed = currentMachine.getSpeed();
+			currentMachine.setSpeed(-1);
+			editorSpace.getChildren().remove(machineSpeed);
+			runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
+			currentMachine.setSpeed(oldSpeed);
+		});
 
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
@@ -674,6 +694,15 @@ class Editor {
 			if(!deleteEditor(window, prev, currentMachine))
 				we.consume();
 		});
+
+		ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
+			() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
+
+		machineSpeed = new Text( "Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+		machineSpeed.xProperty().bind(editorSpace.widthProperty().divide(10));
+		machineSpeed.yProperty().bind(editorSpace.heightProperty());
+		machineSpeed.fontProperty().bind(textTrack);
+		editorSpace.getChildren().add(machineSpeed);
 
 		Circle circle = new Circle(circleRadius, null);
 		circle.setStroke(Color.BLACK);

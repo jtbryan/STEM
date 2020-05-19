@@ -84,6 +84,11 @@ class Machine {
 		return speed;
 	}
 
+	public String getSpeedString(){
+		String speedString = speed == 500 ? "Slow" : speed == 250 ? "Normal" : speed == 75 ? "Fast" : "No Delay";
+		return speedString;
+	}
+
 	public void setSpeed(int speed) {
 	    System.out.printf("Speed: %d\n", speed);
 		this.speed = speed;
