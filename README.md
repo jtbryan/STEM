@@ -8,6 +8,7 @@ Sam MacLean [smaclean@vols.utk.edu] </br>
 Joel Kovalcson [jkovalcs@vols.utk.edu] </br>  
 Dakota Sanders [dsande30@vols.utk.edu] </br>  
 Matt Matto [hgd145@vols.utk.edu] </br>
+
 Jonathan Bryan [jbryan74@vols.utk.edu] </br>
 
 #### Note for Linux Users
