@@ -214,7 +214,7 @@ class Editor {
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
-		ToggleButton deleteState = new ToggleButton("Delete Value");
+		ToggleButton deleteState = new ToggleButton("Delete");
 		deleteState.fontProperty().bind(barTextTrack);
 		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(9));
 		deleteState.setUserData("Delete Value");
@@ -277,12 +277,13 @@ class Editor {
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
-		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton));
+		runMachine.setOnAction(e-> {	
+			runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
+		});
 
 		manualControl.setOnAction(e -> {
 			int oldSpeed = currentMachine.getSpeed();
 			currentMachine.setSpeed(-1);
-			editorSpace.getChildren().remove(machineSpeed);
 			runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
 			currentMachine.setSpeed(oldSpeed);
 		});
@@ -1152,6 +1153,8 @@ class Editor {
 			currentMachine.getTape().initTape(new ArrayList<>(' '));
 		}
 
+		editorSpace.getChildren().remove(machineSpeed);	
+
 		if(currentMachine.getSpeed() == -1){
 			ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
 					() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
@@ -1303,6 +1306,8 @@ class Editor {
 				System.out.println(machineSteps.size());
 				thisButton.setText("Run Machine");
 				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
+
+				editorSpace.getChildren().add(machineSpeed);			
 			});
 
 			editorSpace.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
@@ -1433,7 +1438,7 @@ class Editor {
 				alert.showAndWait();
 
 				thisButton.setText("Run Machine");
-				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
+				thisButton.setOnAction(event1 -> runMachine(thisButton, args));		
 
 				for (Node b : args)
 					b.setDisable(false);
@@ -1458,7 +1463,7 @@ class Editor {
 
 				thisButton.setText("Run Machine");
 				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
-				tester.setCont(false);
+				tester.setCont(false);	
 			});
 
 			thisButton.setText("Stop Machine");
@@ -1476,6 +1481,7 @@ class Editor {
 				editorSpace.getChildren().remove(t);
 				task.cancel();
 				tester.setCont(false);
+				editorSpace.getChildren().add(machineSpeed);			
 			});
 
 			new Thread(task).start();
