@@ -2,5 +2,5 @@
 *.idea
 *.DS_STORE
 *.vs
-out/
-out/*
+#out/
+#out/*
