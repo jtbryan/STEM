@@ -1307,7 +1307,8 @@ class Editor {
 				thisButton.setText("Run Machine");
 				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
 
-				editorSpace.getChildren().add(machineSpeed);			
+				editorSpace.getChildren().add(machineSpeed);	
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");		
 			});
 
 			editorSpace.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
@@ -1315,7 +1316,7 @@ class Editor {
 			t.requestFocus();
 		}
 		else {
-			String speedText = currentMachine.getSpeed() == 500 ? "Slow" : currentMachine.getSpeed() == 250 ? "Normal" : currentMachine.getSpeed() == 75 ? "Fast" : currentMachine.getSpeed() == 0 ? "No Delay" : "Unknown";
+			String speedText = currentMachine.getSpeedString();
 			ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
 				() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
 			Text t = new Text( "<Up Arrow> Increase Speed  <Down Arrow> Decrease Speed  <Esc> Stop Machine \tCurrent Speed: " + speedText);
@@ -1403,7 +1404,7 @@ class Editor {
 						tester.setCurSpeed(currentMachine.getSpeed());
 						System.out.println("Speeding up");
 
-						String speedText = currentMachine.getSpeed() == 500 ? "Slow" : currentMachine.getSpeed() == 250 ? "Normal" : currentMachine.getSpeed() == 75 ? "Fast" : currentMachine.getSpeed() == 0 ? "No Delay" : "Unknown";
+						String speedText = currentMachine.getSpeedString();
 						t.setText("<Up Arrow> Increase Speed  <Down Arrow> Decrease Speed  <Esc> Stop Machine \tCurrent Speed: " + speedText);
 					}
 					else if (keyEvent.getCode() == KeyCode.DOWN) {
@@ -1412,7 +1413,7 @@ class Editor {
 						tester.setCurSpeed(currentMachine.getSpeed());
 						System.out.println("Slowing down");
 	
-						String speedText = currentMachine.getSpeed() == 500 ? "Slow" : currentMachine.getSpeed() == 250 ? "Normal" : currentMachine.getSpeed() == 75 ? "Fast" : currentMachine.getSpeed() == 0 ? "No Delay" : "Unknown";
+						String speedText = currentMachine.getSpeedString();
 						t.setText("<Up Arrow> Increase Speed  <Down Arrow> Decrease Speed  <Esc> Stop Machine \tCurrent Speed: " + speedText);
 					}
 					t.requestFocus();
@@ -1445,6 +1446,8 @@ class Editor {
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
 				editorSpace.getChildren().remove(t);
+				editorSpace.getChildren().add(machineSpeed);
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
 				task.cancel();
 				tester.setCont(false);
 			});
@@ -1459,6 +1462,8 @@ class Editor {
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
 				editorSpace.getChildren().remove(t);
+				editorSpace.getChildren().add(machineSpeed);
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
 				task.cancel();
 
 				thisButton.setText("Run Machine");
@@ -1481,7 +1486,8 @@ class Editor {
 				editorSpace.getChildren().remove(t);
 				task.cancel();
 				tester.setCont(false);
-				editorSpace.getChildren().add(machineSpeed);			
+				editorSpace.getChildren().add(machineSpeed);
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");			
 			});
 
 			new Thread(task).start();
