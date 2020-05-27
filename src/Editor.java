@@ -68,6 +68,8 @@ class Editor {
 	private String machineFile;
 	private BorderPane tapeArea;
 	private Text machineSpeed;
+	private double prevStateX;
+	private double prevStateY;
 	//private Integer tapeDisplayOffset;
 
 	void setCircleRadius(int size){
@@ -1507,6 +1509,148 @@ class Editor {
 			redrawState(s);
 	}
 
+	/* mouseReleased EventHandler: The is the event handler for when a state is released (or the circle/text of the text)
+	*		This function will update the the state one more time, and then also move the start triangle if needed.
+	* Post-condition: state is entirely updated
+	* NOTE: this function expects for only a State's circle or text to be linked to it
+	*/
+	EventHandler<MouseEvent> stateReleased = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e){
+			State s = null;
+			Text l = null;
+			Circle c = null;
+
+			// get the source of the click. Will always be a Text or a Circle
+			if(e.getSource() instanceof Text){
+				l = (Text)(e.getSource());
+			} else{
+				c = (Circle)(e.getSource());
+			}
+
+			// find which state was pressed
+			for (State i : currentMachine.getStates()){
+				if(c == i.getCircle() || l == i.getLabel()){
+					s = i;
+				}
+			}
+			c = s.getCircle();
+			l = s.getLabel();
+
+			// get the transitions
+			ArrayList<Transition> tl = new ArrayList<>();
+			tl.addAll(s.getTransition());
+			for(Transition t : currentMachine.getTransitions()){
+				if(t.getToState() == s && t.getToState() != t.getFromState()){
+					//System.out.printf("Adding Transiton %s -> %s, %c ; %c ; %c\n", t.getFromState().getName(), t.getToState().getName(),
+					//		t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+					tl.add(t);
+				}
+			}
+			redrawPaths(tl);
+
+			// if the state is a start state, redraw it
+			if(s.isStart()){
+				redrawState(s);
+			}
+		}
+	};
+
+	/* stateClicked EventHandler: This is the event handler for if a state is pressed (or the circle/text of the state.)
+	 * 		This function just stores the where the mouse was currently clicked
+	 * NOTE: this function expects for only a State's circle or text to be linked to it
+	*/
+	EventHandler<MouseEvent> stateClicked = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e){
+			prevStateX = e.getSceneX();
+			prevStateY = e.getSceneY();
+		}
+	};
+
+	/* stateDragged EventHandler: This is the event handler for if a state is dragged (or the circle/text of the state)
+	*		This function will calculate the changes, and update the circle, text, transitions, and the accept circle if needed
+	*		It also only works if the primary button is clicked on the mouse. 
+	*		It will also only work if the State is being dragged within the bounds of the window
+	* Post-condition: the state's position has been updated
+	* NOTE: this function expects for only a State's circle or text to be linked to it
+	*/
+	EventHandler<MouseEvent> stateDragged = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e){
+			// only drag on primary button being pressed, otherwise consume
+			if(e.isPrimaryButtonDown()){
+				State s = null;
+				Text l = null;
+				Circle c = null;
+
+				// get the source of the click. Will always be a Text or a Circle
+				if(e.getSource() instanceof Text){
+					l = (Text)(e.getSource());
+				} else{
+					c = (Circle)(e.getSource());
+				}
+
+				// find which state it is
+				for (State i : currentMachine.getStates()){
+					if(c == i.getCircle() || l == i.getLabel()){
+						s = i;
+					}
+				}
+
+				c = s.getCircle();
+				l = s.getLabel();
+
+				double offsetX = e.getSceneX() - prevStateX;
+				double offsetY = e.getSceneY() - prevStateY;
+
+				double newX = c.getCenterX() + offsetX;
+				double newY = c.getCenterY() + offsetY;
+				if((newX > circleRadius) && newX < (editor.getWidth() - circleRadius) 
+						&& (newY > circleRadius) && (newY < editor.getHeight() - (110
+						 + circleRadius))) {
+
+						// set the coordinates for the circle
+						c.setCenterX(newX);
+						c.setCenterY(newY);
+
+						// set the state's x/y coordinates
+						s.setX(newX);
+						s.setY(newY);
+
+						l.setX(newX - (l.getLayoutBounds().getWidth() / 2));
+						l.setY(newY + (l.getLayoutBounds().getHeight() / 4));
+
+						prevStateX = e.getSceneX();
+						prevStateY = e.getSceneY();
+
+						// update the accept circle if needed
+						if(s.isAccept()){
+							s.getAcceptCircle().setCenterX(newX);
+							s.getAcceptCircle().setCenterY(newY);
+						}
+
+						// update transitions
+						ArrayList<Transition> tl = new ArrayList<>();
+						tl.addAll(s.getTransition());
+						for(Transition t : currentMachine.getTransitions()){
+							if(t.getToState() == s && t.getToState() != t.getFromState()){
+								//System.out.printf("Adding Transiton %s -> %s, %c ; %c ; %c\n", t.getFromState().getName(), t.getToState().getName(),
+								//		t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+								tl.add(t);
+							}
+						}
+						redrawPaths(tl);
+
+					}
+			}
+			else {
+				e.consume();
+			}
+
+		}
+	};
+
 	private void redrawState(State s) {
 		editorSpace.getChildren().removeAll(s.getCircle(), s.getLabel());
 		if(s.getAcceptCircle()!= null)
@@ -1558,6 +1702,14 @@ class Editor {
 
 			editorSpace.getChildren().addAll(startTriangle);
 		}
+
+		s.getCircle().setOnMousePressed(stateClicked);
+		s.getCircle().setOnMouseDragged(stateDragged);
+		s.getCircle().setOnMouseReleased(stateReleased);
+
+		s.getLabel().setOnMousePressed(stateClicked);
+		s.getLabel().setOnMouseDragged(stateDragged);
+		s.getLabel().setOnMouseReleased(stateReleased);
 
 	}
 	
