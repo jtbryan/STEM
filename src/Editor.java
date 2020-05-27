@@ -979,13 +979,6 @@ class Editor {
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
-			//	 ____
-			//  |  __|    _       _     _   _____                    _ _   _
-			//  | |__    / \   __| | __| | |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __
-			//  |  __|  / _ \ / _` |/ _` |   | || '__/ _` | '_ \/ __| | __| |/ _ \| '_ \
-			//  | |__  / ___ \ (_| | (_| |   | || | | (_| | | | \__ \ | |_| | (_) | | | |
-			//  |____|/_/   \_\__,_|\__,_|   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_|
-			//
 			else if (new_toggle.getUserData() == "Edit Transition"){
 				System.out.println(new_toggle.getUserData());
 
