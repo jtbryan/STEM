@@ -869,21 +869,8 @@ class Editor {
 							deleteState(targetState);
 						}
 						else if(Target instanceof Transition){
-						    System.out.println("Test");
-							ArrayList<Node> nodes;
-							Transition targetTransition;
-
-							targetTransition = (Transition) Target;
-							nodes = targetTransition.getPath().removeTransition(targetTransition);
-
-							if(!nodes.isEmpty())
-								editorSpace.getChildren().removeAll(nodes);
-
-							if(targetTransition.getPath().getAllNodes().isEmpty())
-								currentMachine.getPaths().remove(targetTransition.getPath());
-
-							targetTransition.getFromState().getTransition().remove(targetTransition);
-							currentMachine.getTransitions().remove(targetTransition);
+							Transition targetTransition = (Transition) Target;
+							deleteTransition(targetTransition);
 						}
 
 						for(Transition t : currentMachine.getTransitions())
@@ -1038,9 +1025,50 @@ class Editor {
 		return t.createdTransition;
 	}
 
+	/* deleteTransition: Takes a transition, and deletes it.
+	*  Parameters:
+	*		t: the transition which to delete
+	*  Post-condition: given transition is completely deleted
+	*/
+	private void deleteTransition(Transition t){
+		ArrayList<Node> nodes;
+		nodes = t.getPath().removeTransition(t);
+
+		if(!nodes.isEmpty()){
+			editorSpace.getChildren().removeAll(nodes);
+		}
+
+		if(t.getPath().getAllNodes().isEmpty()){
+			currentMachine.getPaths().remove(t.getPath());
+		}
+
+		t.getFromState().getTransition().remove(t);
+		currentMachine.getTransitions().remove(t);
+	}
+
+	/* deleteTransitionsFromEditor: deletes the transitions that the user deleted from the transition editor
+	*/
+	private void deleteTransitionsFromEditor(ArrayList<Transition> deleteTransitions){
+		if(deleteTransitions != null){
+			for(Transition t : deleteTransitions){
+				deleteTransition(t);
+			}
+		}
+	}
+
+	/*	editTransition: this function opens the second edit transition window. 
+	*   	It'll open the window and wait until the user is done with whatever changes they are making
+	*	Post-condition: once the user closes the window, the machine will be updated with the changes the user made.
+	*/
 	private void editTransition(Transition transition) {
 		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window, transition.getPath());
+		ArrayList<Transition> deletedTrns = t.getDeletedTransition();
+
+		// if the user chose to delete any transitions, go through and delete each one
+		if(deletedTrns != null){
+			deleteTransitionsFromEditor(deletedTrns);
+		}
 		redrawAllPaths();
 		for (Path p : currentMachine.getPaths())
 			p.setTextFillColor(Color.DARKGREEN);

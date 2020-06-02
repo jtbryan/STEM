@@ -21,7 +21,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -34,11 +34,14 @@ import javafx.scene.text.Text;
 import javafx.scene.Group;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import java.util.ArrayList;
 
 
 public class TransitionEditor {
 
     public Transition createdTransition;
+    private ArrayList<Transition> deletedTransitions;
 
     public TransitionEditor(Stage window, State from, State to){
         Stage transitionEditor = new Stage();
@@ -212,15 +215,18 @@ public class TransitionEditor {
 
         transitionEditor.showAndWait();
     }
-
+    /* Constructor for editing an already existing transition
+    */
     public TransitionEditor(Stage window, Path path){
         Stage transitionEditor = new Stage();
         transitionEditor.setTitle("Transition Editor");
-        transitionEditor.setWidth(325);
+        transitionEditor.setWidth(500);
         transitionEditor.setHeight(400);
         transitionEditor.setResizable(false);
         transitionEditor.initModality(Modality.APPLICATION_MODAL);
         transitionEditor.initOwner(window);
+        deletedTransitions = new ArrayList<Transition>();
+        ObservableList<Transition> list = FXCollections.observableArrayList();
 
         TableView table = new TableView();
         Label label = new Label("List of transitions");
@@ -304,7 +310,65 @@ public class TransitionEditor {
             }
         );
 
-        ObservableList<Transition> list = FXCollections.observableArrayList();
+        TableColumn deleteCol = new TableColumn("Delete Transition");
+        
+        /* Adding the button to the column
+        */
+        Callback<TableColumn<Transition, String>, TableCell<Transition, String>> cellFactory
+                = //
+                new Callback<TableColumn<Transition, String>, TableCell<Transition, String>>() {
+            @Override
+            public TableCell call(final TableColumn<Transition, String> param) {
+                
+                final TableCell<Transition, String> cell = new TableCell<Transition, String>() {
+
+                    final Button del_btn = new Button("Delete transition!");
+                    
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            // event listener for when the button is pressed
+                            del_btn.setOnAction(event -> {
+                                Alert alert = new Alert(Alert.AlertType.NONE);
+                                alert.setTitle("Delete?");
+                                alert.setContentText("Are you sure you want to delete this transition? The transition will not be recoverable after being deleted.");
+                                ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                                ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+                                alert.getButtonTypes().setAll(yesButton, noButton);
+
+                                /* this portion is when the user clicks to delete a transition. It asks for a confirmation
+                                * If confirmed: the respective transition is stored in a list. Then, once the user presses the X for closing the window, all changes will be recorded
+                                */
+                                alert.showAndWait().ifPresent(type -> {
+                                        if (type.getText() == "Yes") {
+                                            // get the respective transition, add it to the deleted list, and remove it from the list in the table
+                                            Transition trns = getTableView().getItems().get(getIndex());
+                                            deletedTransitions.add(trns);
+                                            list.remove(trns);
+
+                                        } else if (type.getText() == "No") {
+                                            System.out.println("USER CLICKED NO");
+                                        }
+                                    });
+                            });
+                            setGraphic(del_btn);
+                            setText(null);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        
+        deleteCol.setCellFactory(cellFactory);
+
+        
 
         table.setItems(list);
         
@@ -330,12 +394,18 @@ public class TransitionEditor {
                 }
             }
         }
-        table.getColumns().addAll(FromS, ToS, read, write, direction);
+        
+        table.getColumns().addAll(FromS, ToS, read, write, direction, deleteCol);
         VBox vbox = new VBox(table);
         Scene popUp = new Scene(vbox);
         transitionEditor.setScene(popUp);
         transitionEditor.showAndWait();
     }
+
+    public ArrayList<Transition> getDeletedTransition(){
+        return deletedTransitions;
+    }
+
 
     public TransitionEditor(Stage window, State from, State to, char read, char write){
         createdTransition = new Transition(to, from, read, write);
