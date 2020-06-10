@@ -142,6 +142,10 @@ class Machine {
 		for (Character c : tape.getTapeAsArray()){
 			ret.append(String.format("%c", c));
 		}
+
+		// make sure to save the current rotation
+		ret.append("\n");
+		ret.append("Start Triangle Position:" + String.valueOf(startTriRotation));
 		ret.append("\n");
 
 		return ret.toString();

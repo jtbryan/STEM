@@ -358,6 +358,13 @@ public class SaveLoad {
         else{
             stateNextVal = 0;
         }
+
+        curLine = br.readLine();
+        
+        // load in the start triangle rotation
+        String[] cur_rot = curLine.split(":");
+        loadMachine.setStartTriRotation(Integer.parseInt(cur_rot[1]));
+
         return loadMachine;
     }
 }
