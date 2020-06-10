@@ -70,6 +70,13 @@ class Editor {
 	private Text machineSpeed;
 	private double prevStateX;
 	private double prevStateY;
+	private int currentStartRotation;
+
+	// used for rotating the start triangle
+	private static final int START_LEFT = 0;
+	private static final int START_BOTTOM = 1;
+	private static final int START_RIGHT = 2;
+	private static final int START_TOP = 3;
 	//private Integer tapeDisplayOffset;
 
 	void setCircleRadius(int size){
@@ -290,6 +297,19 @@ class Editor {
 			currentMachine.setSpeed(oldSpeed);
 		});
 
+		Button rotateStartTri_button = new Button("Rotate Start Triangle");
+		rotateStartTri_button.fontProperty().bind(barTextTrack);
+		rotateStartTri_button.prefWidthProperty().bind(bar.widthProperty().divide(14));
+		rotateStartTri_button.setOnAction(event -> {
+			if(startTriangle != null && currentMachine.getStartState() != null){
+				currentStartRotation = (currentStartRotation + 1) % 4;
+				currentMachine.setStartTriRotation(currentStartRotation);
+				drawStartTriangle(currentMachine.getStartState());
+			} else {
+				System.out.println("There isn't a start state!");
+			}
+		});
+
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
 		saveButton.prefWidthProperty().bind(bar.widthProperty().divide(14));
@@ -307,7 +327,7 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons + Resetting Tape
-		bar.getItems().addAll(tapeButton, resetButton, runMachine, saveButton, backButton);
+		bar.getItems().addAll(tapeButton, resetButton, runMachine, saveButton, backButton, rotateStartTri_button);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -323,23 +343,12 @@ class Editor {
 		MenuItem setStart = new MenuItem("Set Start");
 		setStart.setOnAction(event -> {
 			State s = (State) contextMenu.getOwnerNode().getUserData();
-
-			editorSpace.getChildren().remove(startTriangle);
-			startTriangle.getPoints().clear();
-
-			startTriangle.getPoints().addAll(
-					s.getCircle().getCenterX()-circleRadius - 1, s.getCircle().getCenterY(),
-					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()-circleRadius,
-					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()+circleRadius
-			);
-
-			startTriangle.setFill(null);
-			startTriangle.setStroke(Color.BLACK);
-
-			editorSpace.getChildren().addAll(startTriangle);
+			drawStartTriangle(s);
+			
 			currentMachine.setStartState(s);
 			System.out.printf("State %s is now start\n", currentMachine.getStartState().getName());
 		});
+
 
 		MenuItem toggleAccept = new MenuItem("Toggle Accept");
 		toggleAccept.setOnAction(event -> {
@@ -1000,6 +1009,77 @@ class Editor {
 		});
 	}
 
+
+	private void drawStartTriangle(State s){
+		System.out.println("Current start rotation is: " + currentStartRotation);
+
+		switch(currentStartRotation){
+			case START_LEFT:
+				System.out.println("LEFT");
+				editorSpace.getChildren().remove(startTriangle);
+				startTriangle.getPoints().clear();
+
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX()-circleRadius - 1, s.getCircle().getCenterY(),
+					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()-circleRadius,
+					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()+circleRadius
+				);
+
+				startTriangle.setFill(null);
+				startTriangle.setStroke(Color.BLACK);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+			case START_BOTTOM:
+				System.out.println("BOTTOM");
+
+				editorSpace.getChildren().remove(startTriangle);
+				startTriangle.getPoints().clear();
+
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX(), s.getCircle().getCenterY()+circleRadius - 1,
+					s.getCircle().getCenterX()-circleRadius, s.getCircle().getCenterY()+2*circleRadius,
+					s.getCircle().getCenterX()+circleRadius, s.getCircle().getCenterY()+2*circleRadius
+				);
+
+				startTriangle.setFill(null);
+				startTriangle.setStroke(Color.BLACK);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+			case START_RIGHT:
+				System.out.println("RIGHT");
+				editorSpace.getChildren().remove(startTriangle);
+				startTriangle.getPoints().clear();
+
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX()+circleRadius - 1, s.getCircle().getCenterY(),
+					s.getCircle().getCenterX()+2*circleRadius, s.getCircle().getCenterY()+circleRadius,
+					s.getCircle().getCenterX()+2*circleRadius, s.getCircle().getCenterY()-circleRadius
+				);
+
+				startTriangle.setFill(null);
+				startTriangle.setStroke(Color.BLACK);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+			case START_TOP:
+				System.out.println("TOP");
+				editorSpace.getChildren().remove(startTriangle);
+				startTriangle.getPoints().clear();
+
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX(), s.getCircle().getCenterY()-circleRadius - 1,
+					s.getCircle().getCenterX()+circleRadius, s.getCircle().getCenterY()-2*circleRadius,
+					s.getCircle().getCenterX()-circleRadius, s.getCircle().getCenterY()-2*circleRadius
+				);
+				startTriangle.setFill(null);
+				startTriangle.setStroke(Color.BLACK);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+		}
+	}
 
 
 	//   __  __            _     _              __  __                               _       _   _
@@ -1716,19 +1796,7 @@ class Editor {
 		}
 
 		if (s.isStart() || currentMachine.getStartState() == s) {
-			editorSpace.getChildren().remove(startTriangle);
-			startTriangle.getPoints().clear();
-
-			startTriangle.getPoints().addAll(
-					s.getCircle().getCenterX() - circleRadius - 1, s.getCircle().getCenterY(),
-					s.getCircle().getCenterX() - 2 * circleRadius, s.getCircle().getCenterY() - circleRadius,
-					s.getCircle().getCenterX() - 2 * circleRadius, s.getCircle().getCenterY() + circleRadius
-			);
-
-			startTriangle.setFill(null);
-			startTriangle.setStroke(Color.BLACK);
-
-			editorSpace.getChildren().addAll(startTriangle);
+			drawStartTriangle(s);
 		}
 
 		s.getCircle().setOnMousePressed(stateClicked);

@@ -22,6 +22,7 @@ class Machine {
 	private ArrayList<Path> paths = new ArrayList<>();
 	private int speed;
 	private Tape tape;
+	private int startTriRotation;
 
 	Machine(){
 		this.tape = new Tape();
@@ -34,6 +35,14 @@ class Machine {
 		this.startState = startState;
 		this.tape = new Tape();
 		this.speed = 250;
+	}
+
+	public void setStartTriRotation(int input){
+		startTriRotation = input;
+	}
+
+	public int getStartTriRotation(){
+		return startTriRotation;
 	}
 
 	public Tape getTape() {
@@ -49,7 +58,10 @@ class Machine {
 	}
 	
 	public void setStartState(State startState) {
+		if(this.startState != null)
+			this.startState.setStart(false);
 		this.startState = startState;
+		this.startState.setStart(true);
 	}
 	
 	public ArrayList<State> getStates() {
