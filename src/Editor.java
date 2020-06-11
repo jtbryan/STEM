@@ -307,7 +307,11 @@ class Editor {
 				currentMachine.setStartTriRotation((currentMachine.getStartTriRotation() + 1) % 4);
 				drawStartTriangle(currentMachine.getStartState());
 			} else {
-				System.out.println("There isn't a start state!");
+				Alert a = new Alert(Alert.AlertType.INFORMATION);
+				a.setTitle("Error!");
+				a.setHeaderText("No start state!");
+				a.setContentText("Please select a start state and try again.");
+				a.showAndWait();
 			}
 		});
 

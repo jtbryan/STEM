@@ -362,8 +362,10 @@ public class SaveLoad {
         curLine = br.readLine();
         
         // load in the start triangle rotation
-        String[] cur_rot = curLine.split(":");
-        loadMachine.setStartTriRotation(Integer.parseInt(cur_rot[1]));
+        if(curLine != null){
+            String[] cur_rot = curLine.split(":");
+            loadMachine.setStartTriRotation(Integer.parseInt(cur_rot[1]));
+        }
 
         return loadMachine;
     }
