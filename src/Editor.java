@@ -1375,8 +1375,10 @@ class Editor {
 						tester.setFailReason("Machine has no start state!");
 					}
 				}
-			catch (Exception e) {
-						showException(e);
+				catch (Exception e) {
+						if(!(e instanceof InterruptedException)) {
+							showException(e);
+						}
 					}
 					return null;
 				}
@@ -1438,9 +1440,6 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-				editorSpace.getChildren().remove(t);
-				editorSpace.getChildren().add(machineSpeed);
-				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
 				task.cancel();
 				tester.setCont(false);
 			});
@@ -1454,9 +1453,6 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-				editorSpace.getChildren().remove(t);
-				editorSpace.getChildren().add(machineSpeed);
-				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
 				task.cancel();
 
 				thisButton.setText("Run Machine");
@@ -1480,7 +1476,7 @@ class Editor {
 				task.cancel();
 				tester.setCont(false);
 				editorSpace.getChildren().add(machineSpeed);
-				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");			
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");		
 			});
 
 			new Thread(task).start();
