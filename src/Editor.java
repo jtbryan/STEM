@@ -1266,7 +1266,7 @@ class Editor {
 
 			ArrayList<MachineStep> machineSteps = new ArrayList<>();
 
-			currentMachine.getTape().centerTapeDisplay();
+			//currentMachine.getTape().centerTapeDisplay();
 			currentMachine.getTape().refreshTapeDisplay();
 
 			EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
@@ -1307,7 +1307,7 @@ class Editor {
 								alert.setContentText(tester.getFailReason());
 							}
 
-							currentMachine.getTape().centerTapeDisplay();
+							//currentMachine.getTape().centerTapeDisplay();
 							currentMachine.getTape().refreshTapeDisplay();
 
 							alert.showAndWait();
@@ -1340,7 +1340,7 @@ class Editor {
 								break;
 						}
 
-						currentMachine.getTape().centerTapeDisplay();
+						//currentMachine.getTape().centerTapeDisplay();
 						currentMachine.getTape().refreshTapeDisplay();
 
 						keyEvent.consume();
@@ -1376,7 +1376,7 @@ class Editor {
 
 						lastStep.getTransition().getFromState().getCircle().setFill(Color.GREENYELLOW);
 
-						currentMachine.getTape().centerTapeDisplay();
+						//currentMachine.getTape().centerTapeDisplay();
 						currentMachine.getTape().refreshTapeDisplay();
 
 						machineSteps.remove(machineSteps.size()-1);
