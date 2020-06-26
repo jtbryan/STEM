@@ -1648,7 +1648,7 @@ class Editor {
 
 			// if the state is a start state, redraw it
 			if(s.isStart()){
-				redrawState(s);
+				drawStartTriangle(s);
 			}
 		}
 	};
@@ -1725,6 +1725,11 @@ class Editor {
 						if(s.isAccept()){
 							s.getAcceptCircle().setCenterX(newX);
 							s.getAcceptCircle().setCenterY(newY);
+						}
+
+						// if the state is a start state, redraw it
+						if(s.isStart()){
+							drawStartTriangle(s);
 						}
 
 						// update transitions
