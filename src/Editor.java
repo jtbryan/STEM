@@ -1461,7 +1461,6 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-
 				task.cancel();
 				tester.setCont(false);
 			});
@@ -1475,7 +1474,6 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-
 				task.cancel();
 
 				thisButton.setText("Run Machine");
@@ -1499,7 +1497,7 @@ class Editor {
 				tester.setCont(false);
 				editorSpace.getChildren().remove(t);
 				editorSpace.getChildren().add(machineSpeed);
-				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");			
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");		
 			});
 
 			new Thread(task).start();
