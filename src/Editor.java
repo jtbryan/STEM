@@ -278,13 +278,33 @@ class Editor {
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
 		runMachine.setOnAction(e-> {	
-			runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
+			if(currentMachine.getStartState() == null){
+				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.initOwner(window);
+				alert.initModality(Modality.APPLICATION_MODAL);
+				alert.setTitle("The machine has finished");
+				alert.setHeaderText("No start state set.");
+				alert.showAndWait();
+			}
+			else{
+				runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
+			}
 		});
 
 		manualControl.setOnAction(e -> {
 			int oldSpeed = currentMachine.getSpeed();
 			currentMachine.setSpeed(-1);
-			runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
+			if(currentMachine.getStartState() == null){
+				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.initOwner(window);
+				alert.initModality(Modality.APPLICATION_MODAL);
+				alert.setTitle("The machine has finished");
+				alert.setHeaderText("No start state set.");
+				alert.showAndWait();
+			}
+			else{
+				runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
+			}
 			currentMachine.setSpeed(oldSpeed);
 		});
 
@@ -1242,6 +1262,7 @@ class Editor {
 					else if(keyEvent.getCode() == KeyCode.LEFT){
 						System.out.println("Left");
 						if(machineSteps.size() == 0){
+							keyEvent.consume();
 							return;
 						}
 
@@ -1369,14 +1390,16 @@ class Editor {
 								else{
 									trackerState = tester.runMachine(currentMachine, trackerState);
 								}
+							}
+						}
+						else{
+							tester.setFailReason("Machine has no start state!");
 						}
 					}
-						else{
-						tester.setFailReason("Machine has no start state!");
-					}
-				}
-			catch (Exception e) {
-						showException(e);
+					catch (Exception e) {
+						if(!(e instanceof InterruptedException)) {
+							showException(e);
+						}
 					}
 					return null;
 				}
@@ -1438,9 +1461,7 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-				editorSpace.getChildren().remove(t);
-				editorSpace.getChildren().add(machineSpeed);
-				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+
 				task.cancel();
 				tester.setCont(false);
 			});
@@ -1454,9 +1475,7 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-				editorSpace.getChildren().remove(t);
-				editorSpace.getChildren().add(machineSpeed);
-				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");
+
 				task.cancel();
 
 				thisButton.setText("Run Machine");
@@ -1476,9 +1495,9 @@ class Editor {
 					b.setDisable(false);
 
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-				editorSpace.getChildren().remove(t);
 				task.cancel();
 				tester.setCont(false);
+				editorSpace.getChildren().remove(t);
 				editorSpace.getChildren().add(machineSpeed);
 				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");			
 			});
