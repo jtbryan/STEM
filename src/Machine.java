@@ -61,7 +61,6 @@ class Machine {
 		if(this.startState != null)
 			this.startState.setStart(false);
 		this.startState = startState;
-		this.startState.setStart(true);
 	}
 	
 	public ArrayList<State> getStates() {

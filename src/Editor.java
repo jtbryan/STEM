@@ -196,12 +196,12 @@ class Editor {
 
 		shiftLeft.setOnMouseClicked((button) -> {
 			currentMachine.getTape().decrementDisplayOffset();
-			currentMachine.getTape().refreshTapeDisplay();
+			currentMachine.getTape().refreshTapeDisplay_noCenter();
 		});
 
 		shiftRight.setOnMouseClicked((button) -> {
 			currentMachine.getTape().incrementDisplayOffset();
-			currentMachine.getTape().refreshTapeDisplay();
+			currentMachine.getTape().refreshTapeDisplay_noCenter();
 		});
 
 		currentMachine.getTape().setDisplay(tapeDisplay, headDisplay, tapeArea);
@@ -351,6 +351,7 @@ class Editor {
 			drawStartTriangle(s);
 			
 			currentMachine.setStartState(s);
+			s.setStart(true);
 			System.out.printf("State %s is now start\n", currentMachine.getStartState().getName());
 		});
 
@@ -827,6 +828,14 @@ class Editor {
 							contextMenu.show(t,event2.getScreenX(),event2.getScreenY());
 						});
 
+						// add the event listeners for the new states
+						s.getCircle().setOnMousePressed(stateClicked);
+						s.getCircle().setOnMouseDragged(stateDragged);
+						s.getCircle().setOnMouseReleased(stateReleased);
+
+						s.getLabel().setOnMousePressed(stateClicked);
+						s.getLabel().setOnMouseDragged(stateDragged);
+						s.getLabel().setOnMouseReleased(stateReleased);
 						currentMachine.addState(s);
 						editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
 					}
@@ -1242,6 +1251,7 @@ class Editor {
 	}
 
 	private void runMachine(SplitMenuButton thisButton , Node... args){
+		currentMachine.getTape().centerTapeDisplay();
 		toggleGroup.selectToggle(null);
 		for(Node b : args)
 			b.setDisable(true);
