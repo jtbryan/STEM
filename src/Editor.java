@@ -1463,6 +1463,9 @@ class Editor {
 				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
 				task.cancel();
 				tester.setCont(false);
+				editorSpace.getChildren().remove(t);
+				editorSpace.getChildren().add(machineSpeed);
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");	
 			});
 			task.setOnCancelled(event -> {
 				currentMachine.getTape().refreshTapeDisplay();
@@ -1479,6 +1482,9 @@ class Editor {
 				thisButton.setText("Run Machine");
 				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
 				tester.setCont(false);	
+				editorSpace.getChildren().remove(t);
+				editorSpace.getChildren().add(machineSpeed);
+				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");	
 			});
 
 			thisButton.setText("Stop Machine");

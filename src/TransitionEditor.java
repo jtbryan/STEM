@@ -296,7 +296,7 @@ public class TransitionEditor {
 						alert.initOwner(window);
 						alert.initModality(Modality.APPLICATION_MODAL);
 						alert.setTitle("Incorrect Transition");
-						alert.setHeaderText("Direction must be 'L', 'R', or 'S'");
+						alert.setHeaderText("Direction must be 'L', 'R', or 'S'\nL: Left\nR: Right\nS: Stay");
                         alert.showAndWait();
                         t.getTableView().refresh();
                     }
