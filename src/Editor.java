@@ -943,9 +943,22 @@ class Editor {
 										return;
 									}
 
+									// if one is already found, alert user, and return
 									for (Transition temp : currentMachine.getTransitions()){
-										if(temp.compareTo(t))
+										if(temp.compareTo(t)){
+											// reset the colors and selections
+											s.getCircle().setFill(s.getBaseColor());
+											transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
+											transitionFromState = null;
+
+											// alert the user
+											Alert alert = new Alert(Alert.AlertType.ERROR);
+											alert.setTitle("Transition Exists");
+											alert.setContentText("That transition already exists! Please try again.");
+											alert.showAndWait();
+
 											return;
+										}
 									}
 
 									currentMachine.getTransitions().add(t);
