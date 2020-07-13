@@ -219,25 +219,25 @@ class Editor {
 
 		ToggleButton addState = new ToggleButton("Add State");
 		addState.fontProperty().bind(barTextTrack);
-		addState.prefWidthProperty().bind(bar.widthProperty().divide(9));
+		addState.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
 		ToggleButton deleteState = new ToggleButton("Delete");
 		deleteState.fontProperty().bind(barTextTrack);
-		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(9));
+		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		deleteState.setUserData("Delete Value");
 		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.fontProperty().bind(barTextTrack);
-		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(9));
+		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 
 		ToggleButton editTransition = new ToggleButton("Edit Transition");
 		editTransition.fontProperty().bind(barTextTrack);
-		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(11));
+		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		editTransition.setUserData("Edit Transition");
 		editTransition.setToggleGroup(toggleGroup);
 
@@ -250,13 +250,13 @@ class Editor {
 		
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
-		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		//New Reset Button
 		Button resetButton = new Button("Reset Tape");
 		resetButton.fontProperty().bind(barTextTrack);
-		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		resetButton.setOnAction(e->resetTape(currentMachine));
 
 		// Run Machine with options for speed
@@ -285,7 +285,7 @@ class Editor {
 		SplitMenuButton runMachine = new SplitMenuButton(manualControl, slow, normal, fast, noDelay);
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
-		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
+		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		runMachine.setOnAction(e-> {	
 			runMachine(runMachine, addState, deleteState, addTransition, editTransition, tapeButton, resetButton);
 		});
@@ -301,7 +301,7 @@ class Editor {
 		*/
 		Button rotateStartTri_button = new Button("Rotate Start Triangle");
 		rotateStartTri_button.fontProperty().bind(barTextTrack);
-		rotateStartTri_button.prefWidthProperty().bind(bar.widthProperty().divide(14));
+		rotateStartTri_button.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		rotateStartTri_button.setOnAction(event -> {
 			if(startTriangle != null && currentMachine.getStartState() != null){
 				currentMachine.setStartTriRotation((currentMachine.getStartTriRotation() + 1) % 4);
