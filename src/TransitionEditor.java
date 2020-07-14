@@ -221,7 +221,7 @@ public class TransitionEditor {
     public TransitionEditor(Stage window, Path path){
         Stage transitionEditor = new Stage();
         transitionEditor.setTitle("Transition Editor");
-        transitionEditor.setWidth(647);
+        transitionEditor.setWidth(640);
         transitionEditor.setHeight(500);
         transitionEditor.setResizable(true);
         transitionEditor.initModality(Modality.APPLICATION_MODAL);
