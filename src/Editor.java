@@ -68,6 +68,15 @@ class Editor {
 	private String machineFile;
 	private BorderPane tapeArea;
 	private Text machineSpeed;
+	private double prevStateX;
+	private double prevStateY;
+	private int currentStartRotation;
+
+	// used for rotating the start triangle
+	private static final int START_LEFT = 0;
+	private static final int START_BOTTOM = 1;
+	private static final int START_RIGHT = 2;
+	private static final int START_TOP = 3;
 	//private Integer tapeDisplayOffset;
 
 	void setCircleRadius(int size){
@@ -187,12 +196,12 @@ class Editor {
 
 		shiftLeft.setOnMouseClicked((button) -> {
 			currentMachine.getTape().decrementDisplayOffset();
-			currentMachine.getTape().refreshTapeDisplay();
+			currentMachine.getTape().refreshTapeDisplay_noCenter();
 		});
 
 		shiftRight.setOnMouseClicked((button) -> {
 			currentMachine.getTape().incrementDisplayOffset();
-			currentMachine.getTape().refreshTapeDisplay();
+			currentMachine.getTape().refreshTapeDisplay_noCenter();
 		});
 
 		currentMachine.getTape().setDisplay(tapeDisplay, headDisplay, tapeArea);
@@ -210,25 +219,25 @@ class Editor {
 
 		ToggleButton addState = new ToggleButton("Add State");
 		addState.fontProperty().bind(barTextTrack);
-		addState.prefWidthProperty().bind(bar.widthProperty().divide(9));
+		addState.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
 		ToggleButton deleteState = new ToggleButton("Delete");
 		deleteState.fontProperty().bind(barTextTrack);
-		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(9));
+		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		deleteState.setUserData("Delete Value");
 		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.fontProperty().bind(barTextTrack);
-		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(9));
+		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 
 		ToggleButton editTransition = new ToggleButton("Edit Transition");
 		editTransition.fontProperty().bind(barTextTrack);
-		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(11));
+		editTransition.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		editTransition.setUserData("Edit Transition");
 		editTransition.setToggleGroup(toggleGroup);
 
@@ -241,13 +250,13 @@ class Editor {
 		
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
-		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		//New Reset Button
 		Button resetButton = new Button("Reset Tape");
 		resetButton.fontProperty().bind(barTextTrack);
-		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		resetButton.setOnAction(e->resetTape(currentMachine));
 
 		// Run Machine with options for speed
@@ -276,7 +285,7 @@ class Editor {
 		SplitMenuButton runMachine = new SplitMenuButton(manualControl, slow, normal, fast, noDelay);
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
-		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
+		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(10));
 		runMachine.setOnAction(e-> {	
 			if(currentMachine.getStartState() == null){
 				Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -308,6 +317,24 @@ class Editor {
 			currentMachine.setSpeed(oldSpeed);
 		});
 
+		/*	Button for rotating the start triangle. Just mod-increments the start rotation index, and calls the drawStartTriangle function
+		*/
+		Button rotateStartTri_button = new Button("Rotate Start Triangle");
+		rotateStartTri_button.fontProperty().bind(barTextTrack);
+		rotateStartTri_button.prefWidthProperty().bind(bar.widthProperty().divide(10));
+		rotateStartTri_button.setOnAction(event -> {
+			if(startTriangle != null && currentMachine.getStartState() != null){
+				currentMachine.setStartTriRotation((currentMachine.getStartTriRotation() + 1) % 4);
+				drawStartTriangle(currentMachine.getStartState());
+			} else {
+				Alert a = new Alert(Alert.AlertType.INFORMATION);
+				a.setTitle("Error!");
+				a.setHeaderText("No start state!");
+				a.setContentText("Please select a start state and try again.");
+				a.showAndWait();
+			}
+		});
+
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
 		saveButton.prefWidthProperty().bind(bar.widthProperty().divide(14));
@@ -325,7 +352,7 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons + Resetting Tape
-		bar.getItems().addAll(tapeButton, resetButton, runMachine, saveButton, backButton);
+		bar.getItems().addAll(tapeButton, resetButton, runMachine, saveButton, backButton, rotateStartTri_button);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -341,23 +368,13 @@ class Editor {
 		MenuItem setStart = new MenuItem("Set Start");
 		setStart.setOnAction(event -> {
 			State s = (State) contextMenu.getOwnerNode().getUserData();
-
-			editorSpace.getChildren().remove(startTriangle);
-			startTriangle.getPoints().clear();
-
-			startTriangle.getPoints().addAll(
-					s.getCircle().getCenterX()-circleRadius - 1, s.getCircle().getCenterY(),
-					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()-circleRadius,
-					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()+circleRadius
-			);
-
-			startTriangle.setFill(null);
-			startTriangle.setStroke(Color.BLACK);
-
-			editorSpace.getChildren().addAll(startTriangle);
+			drawStartTriangle(s);
+			
 			currentMachine.setStartState(s);
+			s.setStart(true);
 			System.out.printf("State %s is now start\n", currentMachine.getStartState().getName());
 		});
+
 
 		MenuItem toggleAccept = new MenuItem("Toggle Accept");
 		toggleAccept.setOnAction(event -> {
@@ -831,6 +848,14 @@ class Editor {
 							contextMenu.show(t,event2.getScreenX(),event2.getScreenY());
 						});
 
+						// add the event listeners for the new states
+						s.getCircle().setOnMousePressed(stateClicked);
+						s.getCircle().setOnMouseDragged(stateDragged);
+						s.getCircle().setOnMouseReleased(stateReleased);
+
+						s.getLabel().setOnMousePressed(stateClicked);
+						s.getLabel().setOnMouseDragged(stateDragged);
+						s.getLabel().setOnMouseReleased(stateReleased);
 						currentMachine.addState(s);
 						editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
 					}
@@ -887,21 +912,8 @@ class Editor {
 							deleteState(targetState);
 						}
 						else if(Target instanceof Transition){
-						    System.out.println("Test");
-							ArrayList<Node> nodes;
-							Transition targetTransition;
-
-							targetTransition = (Transition) Target;
-							nodes = targetTransition.getPath().removeTransition(targetTransition);
-
-							if(!nodes.isEmpty())
-								editorSpace.getChildren().removeAll(nodes);
-
-							if(targetTransition.getPath().getAllNodes().isEmpty())
-								currentMachine.getPaths().remove(targetTransition.getPath());
-
-							targetTransition.getFromState().getTransition().remove(targetTransition);
-							currentMachine.getTransitions().remove(targetTransition);
+							Transition targetTransition = (Transition) Target;
+							deleteTransition(targetTransition);
 						}
 
 						for(Transition t : currentMachine.getTransitions())
@@ -951,9 +963,22 @@ class Editor {
 										return;
 									}
 
+									// if one is already found, alert user, and return
 									for (Transition temp : currentMachine.getTransitions()){
-										if(temp.compareTo(t))
+										if(temp.compareTo(t)){
+											// reset the colors and selections
+											s.getCircle().setFill(s.getBaseColor());
+											transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
+											transitionFromState = null;
+
+											// alert the user
+											Alert alert = new Alert(Alert.AlertType.ERROR);
+											alert.setTitle("Transition Exists");
+											alert.setContentText("That transition already exists! Please try again.");
+											alert.showAndWait();
+
 											return;
+										}
 									}
 
 									currentMachine.getTransitions().add(t);
@@ -1025,6 +1050,61 @@ class Editor {
 	}
 
 
+	/* drawStartTriangle: draws the triangle indicating the start state
+	 * Parameters:
+	 *		s: the start state for the machine
+	 * Post-condition: the start triangle is cleared, and the re-drawm
+	*/
+	private void drawStartTriangle(State s){
+		// remove the original points
+		editorSpace.getChildren().remove(startTriangle);
+		startTriangle.getPoints().clear();
+
+		// add the new points depending on there the state is, and what rotation we're at
+		switch(currentMachine.getStartTriRotation()){
+			case START_LEFT:
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX()-circleRadius - 1, s.getCircle().getCenterY(),
+					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()-circleRadius,
+					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()+circleRadius
+				);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+			case START_BOTTOM:
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX(), s.getCircle().getCenterY()+circleRadius - 1,
+					s.getCircle().getCenterX()-circleRadius, s.getCircle().getCenterY()+2*circleRadius,
+					s.getCircle().getCenterX()+circleRadius, s.getCircle().getCenterY()+2*circleRadius
+				);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+			case START_RIGHT:
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX()+circleRadius - 1, s.getCircle().getCenterY(),
+					s.getCircle().getCenterX()+2*circleRadius, s.getCircle().getCenterY()+circleRadius,
+					s.getCircle().getCenterX()+2*circleRadius, s.getCircle().getCenterY()-circleRadius
+				);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+			case START_TOP:
+				startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX(), s.getCircle().getCenterY()-circleRadius - 1,
+					s.getCircle().getCenterX()+circleRadius, s.getCircle().getCenterY()-2*circleRadius,
+					s.getCircle().getCenterX()-circleRadius, s.getCircle().getCenterY()-2*circleRadius
+				);
+
+				editorSpace.getChildren().addAll(startTriangle);
+				break;
+		}
+
+		// set the colors
+		startTriangle.setFill(null);
+		startTriangle.setStroke(Color.BLACK);
+	}
+
 
 	//   __  __            _     _              __  __                               _       _   _
 	//  |  \/  | __ _  ___| |__ (_)_ __   ___  |  \/  | __ _ _ __  _   _ _ __  _   _| | __ _| |_(_) ___  _ __
@@ -1049,9 +1129,50 @@ class Editor {
 		return t.createdTransition;
 	}
 
+	/* deleteTransition: Takes a transition, and deletes it.
+	*  Parameters:
+	*		t: the transition which to delete
+	*  Post-condition: given transition is completely deleted
+	*/
+	private void deleteTransition(Transition t){
+		ArrayList<Node> nodes;
+		nodes = t.getPath().removeTransition(t);
+
+		if(!nodes.isEmpty()){
+			editorSpace.getChildren().removeAll(nodes);
+		}
+
+		if(t.getPath().getAllNodes().isEmpty()){
+			currentMachine.getPaths().remove(t.getPath());
+		}
+
+		t.getFromState().getTransition().remove(t);
+		currentMachine.getTransitions().remove(t);
+	}
+
+	/* deleteTransitionsFromEditor: deletes the transitions that the user deleted from the transition editor
+	*/
+	private void deleteTransitionsFromEditor(ArrayList<Transition> deleteTransitions){
+		if(deleteTransitions != null){
+			for(Transition t : deleteTransitions){
+				deleteTransition(t);
+			}
+		}
+	}
+
+	/*	editTransition: this function opens the second edit transition window. 
+	*   	It'll open the window and wait until the user is done with whatever changes they are making
+	*	Post-condition: once the user closes the window, the machine will be updated with the changes the user made.
+	*/
 	private void editTransition(Transition transition) {
 		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window, transition.getPath());
+		ArrayList<Transition> deletedTrns = t.getDeletedTransition();
+
+		// if the user chose to delete any transitions, go through and delete each one
+		if(deletedTrns != null){
+			deleteTransitionsFromEditor(deletedTrns);
+		}
 		redrawAllPaths();
 		for (Path p : currentMachine.getPaths())
 			p.setTextFillColor(Color.DARKGREEN);
@@ -1156,6 +1277,7 @@ class Editor {
 	}
 
 	private void runMachine(SplitMenuButton thisButton , Node... args){
+		currentMachine.getTape().centerTapeDisplay();
 		toggleGroup.selectToggle(null);
 		for(Node b : args)
 			b.setDisable(true);
@@ -1180,7 +1302,7 @@ class Editor {
 
 			ArrayList<MachineStep> machineSteps = new ArrayList<>();
 
-			currentMachine.getTape().centerTapeDisplay();
+			//currentMachine.getTape().centerTapeDisplay();
 			currentMachine.getTape().refreshTapeDisplay();
 
 			EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
@@ -1221,7 +1343,7 @@ class Editor {
 								alert.setContentText(tester.getFailReason());
 							}
 
-							currentMachine.getTape().centerTapeDisplay();
+							//currentMachine.getTape().centerTapeDisplay();
 							currentMachine.getTape().refreshTapeDisplay();
 
 							alert.showAndWait();
@@ -1254,7 +1376,7 @@ class Editor {
 								break;
 						}
 
-						currentMachine.getTape().centerTapeDisplay();
+						//currentMachine.getTape().centerTapeDisplay();
 						currentMachine.getTape().refreshTapeDisplay();
 
 						keyEvent.consume();
@@ -1291,7 +1413,7 @@ class Editor {
 
 						lastStep.getTransition().getFromState().getCircle().setFill(Color.GREENYELLOW);
 
-						currentMachine.getTape().centerTapeDisplay();
+						//currentMachine.getTape().centerTapeDisplay();
 						currentMachine.getTape().refreshTapeDisplay();
 
 						machineSteps.remove(machineSteps.size()-1);
@@ -1523,6 +1645,153 @@ class Editor {
 			redrawState(s);
 	}
 
+	/* mouseReleased EventHandler: The is the event handler for when a state is released (or the circle/text of the text)
+	*		This function will update the the state one more time, and then also move the start triangle if needed.
+	* Post-condition: state is entirely updated
+	* NOTE: this function expects for only a State's circle or text to be linked to it
+	*/
+	EventHandler<MouseEvent> stateReleased = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e){
+			State s = null;
+			Text l = null;
+			Circle c = null;
+
+			// get the source of the click. Will always be a Text or a Circle
+			if(e.getSource() instanceof Text){
+				l = (Text)(e.getSource());
+			} else{
+				c = (Circle)(e.getSource());
+			}
+
+			// find which state was pressed
+			for (State i : currentMachine.getStates()){
+				if(c == i.getCircle() || l == i.getLabel()){
+					s = i;
+				}
+			}
+			c = s.getCircle();
+			l = s.getLabel();
+
+			// get the transitions
+			ArrayList<Transition> tl = new ArrayList<>();
+			tl.addAll(s.getTransition());
+			for(Transition t : currentMachine.getTransitions()){
+				if(t.getToState() == s && t.getToState() != t.getFromState()){
+					//System.out.printf("Adding Transiton %s -> %s, %c ; %c ; %c\n", t.getFromState().getName(), t.getToState().getName(),
+					//		t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+					tl.add(t);
+				}
+			}
+			redrawPaths(tl);
+
+			// if the state is a start state, redraw it
+			if(s.isStart()){
+				drawStartTriangle(s);
+			}
+		}
+	};
+
+	/* stateClicked EventHandler: This is the event handler for if a state is pressed (or the circle/text of the state.)
+	 * 		This function just stores the where the mouse was currently clicked
+	 * NOTE: this function expects for only a State's circle or text to be linked to it
+	*/
+	EventHandler<MouseEvent> stateClicked = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e){
+			prevStateX = e.getSceneX();
+			prevStateY = e.getSceneY();
+		}
+	};
+
+	/* stateDragged EventHandler: This is the event handler for if a state is dragged (or the circle/text of the state)
+	*		This function will calculate the changes, and update the circle, text, transitions, and the accept circle if needed
+	*		It also only works if the primary button is clicked on the mouse. 
+	*		It will also only work if the State is being dragged within the bounds of the window
+	* Post-condition: the state's position has been updated
+	* NOTE: this function expects for only a State's circle or text to be linked to it
+	*/
+	EventHandler<MouseEvent> stateDragged = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e){
+			// only drag on primary button being pressed, otherwise consume
+			if(e.isPrimaryButtonDown()){
+				State s = null;
+				Text l = null;
+				Circle c = null;
+
+				// get the source of the click. Will always be a Text or a Circle
+				if(e.getSource() instanceof Text){
+					l = (Text)(e.getSource());
+				} else{
+					c = (Circle)(e.getSource());
+				}
+
+				// find which state it is
+				for (State i : currentMachine.getStates()){
+					if(c == i.getCircle() || l == i.getLabel()){
+						s = i;
+					}
+				}
+
+				c = s.getCircle();
+				l = s.getLabel();
+
+				double offsetX = e.getSceneX() - prevStateX;
+				double offsetY = e.getSceneY() - prevStateY;
+
+				double newX = c.getCenterX() + offsetX;
+				double newY = c.getCenterY() + offsetY;
+				if((newX > circleRadius) && newX < (editor.getWidth() - circleRadius) 
+						&& (newY > circleRadius) && (newY < editor.getHeight() - (110
+						 + circleRadius))) {
+
+						// set the coordinates for the circle
+						c.setCenterX(newX);
+						c.setCenterY(newY);
+
+						// set the state's x/y coordinates
+						s.setX(newX);
+						s.setY(newY);
+
+						l.setX(newX - (l.getLayoutBounds().getWidth() / 2));
+						l.setY(newY + (l.getLayoutBounds().getHeight() / 4));
+
+						prevStateX = e.getSceneX();
+						prevStateY = e.getSceneY();
+
+						// update the accept circle if needed
+						if(s.isAccept()){
+							s.getAcceptCircle().setCenterX(newX);
+							s.getAcceptCircle().setCenterY(newY);
+						}
+
+						// if the state is a start state, redraw it
+						if(s.isStart()){
+							drawStartTriangle(s);
+						}
+
+						// update transitions
+						ArrayList<Transition> tl = new ArrayList<>();
+						tl.addAll(s.getTransition());
+						for(Transition t : currentMachine.getTransitions()){
+							if(t.getToState() == s && t.getToState() != t.getFromState()){
+								//System.out.printf("Adding Transiton %s -> %s, %c ; %c ; %c\n", t.getFromState().getName(), t.getToState().getName(),
+								//		t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+								tl.add(t);
+							}
+						}
+						redrawPaths(tl);
+
+					}
+			}
+			else {
+				e.consume();
+			}
+
+		}
+	};
+
 	private void redrawState(State s) {
 		editorSpace.getChildren().removeAll(s.getCircle(), s.getLabel());
 		if(s.getAcceptCircle()!= null)
@@ -1560,20 +1829,16 @@ class Editor {
 		}
 
 		if (s.isStart() || currentMachine.getStartState() == s) {
-			editorSpace.getChildren().remove(startTriangle);
-			startTriangle.getPoints().clear();
-
-			startTriangle.getPoints().addAll(
-					s.getCircle().getCenterX() - circleRadius - 1, s.getCircle().getCenterY(),
-					s.getCircle().getCenterX() - 2 * circleRadius, s.getCircle().getCenterY() - circleRadius,
-					s.getCircle().getCenterX() - 2 * circleRadius, s.getCircle().getCenterY() + circleRadius
-			);
-
-			startTriangle.setFill(null);
-			startTriangle.setStroke(Color.BLACK);
-
-			editorSpace.getChildren().addAll(startTriangle);
+			drawStartTriangle(s);
 		}
+
+		s.getCircle().setOnMousePressed(stateClicked);
+		s.getCircle().setOnMouseDragged(stateDragged);
+		s.getCircle().setOnMouseReleased(stateReleased);
+
+		s.getLabel().setOnMousePressed(stateClicked);
+		s.getLabel().setOnMouseDragged(stateDragged);
+		s.getLabel().setOnMouseReleased(stateReleased);
 
 	}
 	

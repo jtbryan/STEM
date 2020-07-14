@@ -285,7 +285,10 @@ public class SaveLoad {
                 newState.setName(stateMatcher.group(1));
                 newState.setX(Double.parseDouble(stateMatcher.group(2)));
                 newState.setY(Double.parseDouble(stateMatcher.group(3)));
-                if (Boolean.parseBoolean(stateMatcher.group(4))) loadMachine.setStartState(newState);
+                if (Boolean.parseBoolean(stateMatcher.group(4))) {
+                    loadMachine.setStartState(newState);
+                    newState.setStart(true);
+                }
                 newState.setAccept(Boolean.parseBoolean(stateMatcher.group(5)));
                 String k = stateMatcher.group(6);
                 if(k != null){
@@ -358,6 +361,15 @@ public class SaveLoad {
         else{
             stateNextVal = 0;
         }
+
+        curLine = br.readLine();
+        
+        // load in the start triangle rotation
+        if(curLine != null){
+            String[] cur_rot = curLine.split(":");
+            loadMachine.setStartTriRotation(Integer.parseInt(cur_rot[1]));
+        }
+
         return loadMachine;
     }
 }

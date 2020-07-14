@@ -21,7 +21,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -31,14 +31,18 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.Group;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import java.util.ArrayList;
 
 
 public class TransitionEditor {
 
     public Transition createdTransition;
+    private ArrayList<Transition> deletedTransitions;
 
     public TransitionEditor(Stage window, State from, State to){
         Stage transitionEditor = new Stage();
@@ -212,26 +216,41 @@ public class TransitionEditor {
 
         transitionEditor.showAndWait();
     }
-
+    /* Constructor for editing an already existing transition
+    */
     public TransitionEditor(Stage window, Path path){
         Stage transitionEditor = new Stage();
         transitionEditor.setTitle("Transition Editor");
-        transitionEditor.setWidth(325);
-        transitionEditor.setHeight(400);
-        transitionEditor.setResizable(false);
+        transitionEditor.setWidth(647);
+        transitionEditor.setHeight(500);
+        transitionEditor.setResizable(true);
         transitionEditor.initModality(Modality.APPLICATION_MODAL);
         transitionEditor.initOwner(window);
+        deletedTransitions = new ArrayList<Transition>();
+        ObservableList<Transition> list = FXCollections.observableArrayList();
 
         TableView table = new TableView();
-        Label label = new Label("List of transitions");
-        label.setFont(new Font("Arial", 20));
+        Label label = new Label("To make any changes, double click on the Read/Write/Direction cells, and press Enter when finished. Any edits are final. Once the window is closed, the edits will take effect.");
+        label.setMaxWidth(transitionEditor.getWidth());
+        label.setMaxHeight(transitionEditor.getHeight());
+        label.setPrefWidth(transitionEditor.getWidth()/4);
+        label.setPrefHeight(transitionEditor.getHeight()/4);
+        label.setWrapText(true);
+        label.setTextAlignment(TextAlignment.CENTER);
+        //label.setFont(new Font("Arial", 20));
         table.setEditable(true);
  
         TableColumn FromS = new TableColumn("From State");
+        FromS.setMaxWidth(100);
+        FromS.setPrefWidth(100);
         FromS.setCellValueFactory(new PropertyValueFactory<Transition, String>("FromStateName"));
         TableColumn ToS = new TableColumn("To State");
+        ToS.setMaxWidth(100);
+        ToS.setPrefWidth(100);
         ToS.setCellValueFactory(new PropertyValueFactory<Transition, String>("ToStateName"));
         TableColumn read = new TableColumn("Read");
+        read.setMaxWidth(100);
+        read.setPrefWidth(100);
         read.setCellValueFactory(new PropertyValueFactory<Transition, String>("ReadString"));
         read.setCellFactory(TextFieldTableCell.forTableColumn());
         read.setOnEditCommit(
@@ -255,6 +274,8 @@ public class TransitionEditor {
             }
         );
         TableColumn write = new TableColumn("Write");
+        write.setMaxWidth(100);
+        write.setPrefWidth(100);
         write.setCellValueFactory(new PropertyValueFactory<Transition, String>("WriteString"));
         write.setCellFactory(TextFieldTableCell.forTableColumn());
         write.setOnEditCommit(
@@ -278,6 +299,8 @@ public class TransitionEditor {
             }
         );
         TableColumn direction = new TableColumn("Direction");
+        direction.setMaxWidth(100);
+        direction.setPrefWidth(100);
         direction.setCellValueFactory(new PropertyValueFactory<Transition, String>("DirectionChar"));
         direction.setCellFactory(TextFieldTableCell.forTableColumn());
         direction.setOnEditCommit(
@@ -304,7 +327,67 @@ public class TransitionEditor {
             }
         );
 
-        ObservableList<Transition> list = FXCollections.observableArrayList();
+        TableColumn deleteCol = new TableColumn("Delete Transition");
+        deleteCol.setMaxWidth(130);
+        deleteCol.setPrefWidth(130);
+
+        /* Adding the button to the column
+        */
+        Callback<TableColumn<Transition, String>, TableCell<Transition, String>> cellFactory
+                = //
+                new Callback<TableColumn<Transition, String>, TableCell<Transition, String>>() {
+            @Override
+            public TableCell call(final TableColumn<Transition, String> param) {
+                
+                final TableCell<Transition, String> cell = new TableCell<Transition, String>() {
+
+                    final Button del_btn = new Button("Delete transition!");
+                    
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            // event listener for when the button is pressed
+                            del_btn.setOnAction(event -> {
+                                Alert alert = new Alert(Alert.AlertType.NONE);
+                                alert.setTitle("Delete?");
+                                alert.setContentText("Are you sure you want to delete this transition? The transition will not be recoverable after being deleted.");
+                                ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                                ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+                                alert.getButtonTypes().setAll(yesButton, noButton);
+
+                                /* this portion is when the user clicks to delete a transition. It asks for a confirmation
+                                * If confirmed: the respective transition is stored in a list. Then, once the user presses the X for closing the window, all changes will be recorded
+                                */
+                                alert.showAndWait().ifPresent(type -> {
+                                        if (type.getText() == "Yes") {
+                                            // get the respective transition, add it to the deleted list, and remove it from the list in the table
+                                            Transition trns = getTableView().getItems().get(getIndex());
+                                            deletedTransitions.add(trns);
+                                            list.remove(trns);
+
+                                        } else if (type.getText() == "No") {
+                                            System.out.println("USER CLICKED NO");
+                                        }
+                                    });
+                            });
+                            setGraphic(del_btn);
+                            setText(null);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        
+        deleteCol.setCellFactory(cellFactory);
+
+        
 
         table.setItems(list);
         
@@ -330,12 +413,19 @@ public class TransitionEditor {
                 }
             }
         }
-        table.getColumns().addAll(FromS, ToS, read, write, direction);
-        VBox vbox = new VBox(table);
+        
+        table.getColumns().addAll(FromS, ToS, read, write, direction, deleteCol);
+        VBox vbox = new VBox(label);
+        vbox.getChildren().addAll(table);
         Scene popUp = new Scene(vbox);
         transitionEditor.setScene(popUp);
         transitionEditor.showAndWait();
     }
+
+    public ArrayList<Transition> getDeletedTransition(){
+        return deletedTransitions;
+    }
+
 
     public TransitionEditor(Stage window, State from, State to, char read, char write){
         createdTransition = new Transition(to, from, read, write);

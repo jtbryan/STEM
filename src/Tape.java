@@ -39,6 +39,8 @@ public class Tape{
     private final Lock l = new ReentrantLock();
     private Integer tapeDisplayOffset = 0;
     private Integer tapeHead = 0;
+    private Integer centerWidth;
+    private Integer tapeIndex = 1;
     ObservableIntegerValue tapeWidth;
 
     private LinkedList<Character> tape = new LinkedList<>();
@@ -53,9 +55,11 @@ public class Tape{
     }
 
     public void incrementDisplayOffset() {
+        System.out.println("in increment");
         tapeDisplayOffset++;
     }
     public void decrementDisplayOffset() {
+        System.out.println("In decrement");
         tapeDisplayOffset--;
     }
 
@@ -63,13 +67,24 @@ public class Tape{
         tapeDisplayOffset = tapeHead - tapeWidth.get() / 2;
     }
 
-    public void refreshTapeDisplay() {
+    /*  refreshTapeDisplay_noCenter - works just like refreshTapeDisplay but will not center the tape
+    */
+    public void refreshTapeDisplay_noCenter(){
                 int index = tapeDisplayOffset;
                 Character[] tapeChars = getTapeAsArray();
                 int size = tapeChars.length;
+
+                System.out.println("tapeHead: " + tapeHead + "  tapeWidth: " + tapeWidth.get());
+                System.out.println("centerWidth: " + centerWidth + "   tapeIndeX: " + tapeIndex);
+                System.out.println("tapeDisplayoffset: " + tapeDisplayOffset);
+                
+
+
+
                 for(Node n : tapeDisplay.getChildren()) {
                     if (n instanceof StackPane) {
                         for(Node b : ((StackPane) n).getChildren()) {
+                            
                             if (b instanceof Label) {
                                 if(index < size && index >= 0) {
                                     ((Label) b).setText(tapeChars[index].toString());
@@ -79,6 +94,7 @@ public class Tape{
                                     ((Label) b).setText(" ");
                                 }
                             }
+                            
                             if (b instanceof Rectangle) {
                                 if (index == tapeHead) ((Rectangle) b).setFill(Paint.valueOf("#CAE1F9"));
                                 else ((Rectangle) b).setFill(Color.TRANSPARENT);
@@ -87,6 +103,8 @@ public class Tape{
                         index++;
                     }
                 }
+                
+                
                 index = tapeDisplayOffset;
                 for(Node n: headDisplay.getChildren()) {
                     if (n instanceof StackPane) {
@@ -103,7 +121,62 @@ public class Tape{
                     }
                     index++;
                 }
+                
+    }
 
+    public void refreshTapeDisplay() {
+                // center the tape if it reaches the edge
+                int headIndex;
+                headIndex = tapeHead % (tapeWidth.get() / 2);
+                if (headIndex >= (tapeWidth.get()/2)-1){
+                    centerTapeDisplay();
+                }
+
+                int index = tapeDisplayOffset;
+                Character[] tapeChars = getTapeAsArray();
+                int size = tapeChars.length;
+
+                for(Node n : tapeDisplay.getChildren()) {
+                    if (n instanceof StackPane) {
+                        for(Node b : ((StackPane) n).getChildren()) {
+                            
+                            if (b instanceof Label) {
+                                if(index < size && index >= 0) {
+                                    ((Label) b).setText(tapeChars[index].toString());
+                                    ((Label) b).setFont(Font.font(20));
+                                }
+                                else {
+                                    ((Label) b).setText(" ");
+                                }
+                            }
+                            
+                            if (b instanceof Rectangle) {
+                                if (index == tapeHead) ((Rectangle) b).setFill(Paint.valueOf("#CAE1F9"));
+                                else ((Rectangle) b).setFill(Color.TRANSPARENT);
+                            }
+                        }
+                        index++;
+                    }
+                }
+                
+                
+                index = tapeDisplayOffset;
+                for(Node n: headDisplay.getChildren()) {
+                    if (n instanceof StackPane) {
+                        for (Node b : ((StackPane) n).getChildren()) {
+                            if (b instanceof Label) {
+                                if (index == getTapeHead()) {
+                                    ((Label) b).setText("↓");
+                                    ((Label) b).setFont(Font.font(20));
+                                } else {
+                                    ((Label) b).setText(" ");
+                                }
+                            }
+                        }
+                    }
+                    index++;
+                }
+                
     }
 
     public void setDisplay(GridPane tape, GridPane head, BorderPane tapeArea) {

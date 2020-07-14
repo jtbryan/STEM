@@ -22,6 +22,7 @@ class Machine {
 	private ArrayList<Path> paths = new ArrayList<>();
 	private int speed;
 	private Tape tape;
+	private int startTriRotation;
 
 	Machine(){
 		this.tape = new Tape();
@@ -34,6 +35,14 @@ class Machine {
 		this.startState = startState;
 		this.tape = new Tape();
 		this.speed = 250;
+	}
+
+	public void setStartTriRotation(int input){
+		startTriRotation = input;
+	}
+
+	public int getStartTriRotation(){
+		return startTriRotation;
 	}
 
 	public Tape getTape() {
@@ -49,6 +58,8 @@ class Machine {
 	}
 	
 	public void setStartState(State startState) {
+		if(this.startState != null)
+			this.startState.setStart(false);
 		this.startState = startState;
 	}
 	
@@ -130,6 +141,10 @@ class Machine {
 		for (Character c : tape.getTapeAsArray()){
 			ret.append(String.format("%c", c));
 		}
+
+		// make sure to save the current rotation
+		ret.append("\n");
+		ret.append("Start Triangle Position:" + String.valueOf(startTriRotation));
 		ret.append("\n");
 
 		return ret.toString();

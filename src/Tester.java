@@ -136,7 +136,7 @@ public class Tester {
             }
 
             Platform.runLater(() -> {
-                m.getTape().centerTapeDisplay();
+                //m.getTape().centerTapeDisplay();
                 m.getTape().refreshTapeDisplay();
             });
 
@@ -164,7 +164,7 @@ public class Tester {
             currentState.getCircle().setFill(Color.GREENYELLOW);
 
         Platform.runLater(() -> {
-            m.getTape().centerTapeDisplay();
+            //m.getTape().centerTapeDisplay();
             m.getTape().refreshTapeDisplay();
         });
 
