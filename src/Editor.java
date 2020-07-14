@@ -1624,7 +1624,6 @@ class Editor {
 				task.cancel();
 				tester.setCont(false);
 				editorSpace.getChildren().remove(t);
-				editorSpace.getChildren().add(machineSpeed);
 				machineSpeed.setText("Speed selected is " + currentMachine.getSpeedString() + ", Press Run Machine");		
 			});
 
