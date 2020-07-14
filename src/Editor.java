@@ -1338,9 +1338,11 @@ class Editor {
 							if (currentState.isAccept()) {
 								alert.setGraphic(new ImageView(this.getClass().getResource("checkmark.png").toString()));
 								alert.setHeaderText("The machine has finished successfully");
+								thisButton.fire();
 							} else {
 								alert.setHeaderText("The machine has finished unsuccessfully");
 								alert.setContentText(tester.getFailReason());
+								thisButton.fire();
 							}
 
 							//currentMachine.getTape().centerTapeDisplay();
