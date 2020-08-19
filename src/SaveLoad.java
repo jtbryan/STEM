@@ -116,7 +116,7 @@ public class SaveLoad {
                 }
 
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 /* Error occured. */
                 Alert fileError = new Alert(Alert.AlertType.ERROR);
                 fileError.setTitle("File Error");
