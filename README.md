@@ -23,7 +23,7 @@ sudo apt install openjfx
 ### Dependencies and Usage
 
 - Java 9 or greater is <strong>required</strong> for to run this project. For assisstance in installing Java 9 refer to [this](https://www.oracle.com/java/technologies/javase/javase9-archive-downloads.html) page on oracle.
-  - Due to the fact Java 9 is the last remaining version of Java before the removal of javafx, any later version will require openjfx.
+  - Due to the fact Java 10 is the last remaining version of Java before the removal of javafx, any later version will require openjfx.
 - (optional) A makefile is provided to compile to this project. To download make refer to [this link](http://gnuwin32.sourceforge.net/packages/make.htm) if you are on windows. Linux users can simply run the command ``sudo apt install build-essential`` (command may vary per distros)
 
 - <strong>Usage using make</strong>
