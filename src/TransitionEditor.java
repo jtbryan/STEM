@@ -354,6 +354,7 @@ public class TransitionEditor {
                             // event listener for when the button is pressed
                             del_btn.setOnAction(event -> {
                                 Alert alert = new Alert(Alert.AlertType.NONE);
+                                alert.setResizable(true);
                                 alert.setTitle("Delete?");
                                 alert.setContentText("Are you sure you want to delete this transition? The transition will not be recoverable after being deleted.");
                                 ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);

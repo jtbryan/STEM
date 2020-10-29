@@ -328,6 +328,7 @@ class Editor {
 				drawStartTriangle(currentMachine.getStartState());
 			} else {
 				Alert a = new Alert(Alert.AlertType.INFORMATION);
+				a.setResizable(true);
 				a.setTitle("Error!");
 				a.setHeaderText("No start state!");
 				a.setContentText("Please select a start state and try again.");
