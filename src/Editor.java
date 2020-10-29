@@ -1211,6 +1211,7 @@ class Editor {
 
 	private void editTape(Stage window, Machine currentMachine) {
 		TextInputDialog tapeEdit = new TextInputDialog( currentMachine.getTape().toString());
+		tapeEdit.setResizable(true);
 		tapeEdit.setTitle("Edit Tape");
 		tapeEdit.setHeaderText("Valid characters are Ascii values 32-125\nThis includes all alpha-numeric values.");
 
