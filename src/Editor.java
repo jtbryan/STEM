@@ -114,6 +114,7 @@ class Editor {
 			ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
 			Alert saveAlert = new Alert(Alert.AlertType.WARNING, "You have not saved your machine, would you like to?");
+			saveAlert.setResizable(true);
 			saveAlert.initOwner(window);
 			saveAlert.initModality(Modality.APPLICATION_MODAL);
 			saveAlert.setTitle("Warning!");
@@ -289,6 +290,7 @@ class Editor {
 		runMachine.setOnAction(e-> {	
 			if(currentMachine.getStartState() == null){
 				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.setResizable(true);
 				alert.initOwner(window);
 				alert.initModality(Modality.APPLICATION_MODAL);
 				alert.setTitle("The machine has finished");
@@ -305,6 +307,7 @@ class Editor {
 			currentMachine.setSpeed(-1);
 			if(currentMachine.getStartState() == null){
 				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.setResizable(true);
 				alert.initOwner(window);
 				alert.initModality(Modality.APPLICATION_MODAL);
 				alert.setTitle("The machine has finished");
