@@ -263,6 +263,7 @@ public class TransitionEditor {
                     }
                     else{
                         Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setResizable(true);
 						alert.initOwner(window);
 						alert.initModality(Modality.APPLICATION_MODAL);
 						alert.setTitle("Incorrect Transition");
@@ -288,6 +289,7 @@ public class TransitionEditor {
                     }
                     else{
                         Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setResizable(true);
 						alert.initOwner(window);
 						alert.initModality(Modality.APPLICATION_MODAL);
 						alert.setTitle("Incorrect Transition");
@@ -316,6 +318,7 @@ public class TransitionEditor {
                         System.out.println("This is our value: " + t.getNewValue());
                         System.out.println("This is our length: " + t.getNewValue().length());
                         Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setResizable(true);
 						alert.initOwner(window);
 						alert.initModality(Modality.APPLICATION_MODAL);
 						alert.setTitle("Incorrect Transition");

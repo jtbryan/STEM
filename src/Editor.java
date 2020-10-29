@@ -977,6 +977,7 @@ class Editor {
 
 											// alert the user
 											Alert alert = new Alert(Alert.AlertType.ERROR);
+											alert.setResizable(true);
 											alert.setTitle("Transition Exists");
 											alert.setContentText("That transition already exists! Please try again.");
 											alert.showAndWait();
@@ -1232,6 +1233,7 @@ class Editor {
 				}
 				else {
 					Alert alert = new Alert(Alert.AlertType.WARNING);
+					alert.setResizable(true);
 					alert.setTitle("Invalid character(s)");
 					alert.setContentText("You input invalid character(s) in your tape.");
 					alert.initOwner(window);
@@ -1336,6 +1338,7 @@ class Editor {
 
 						if(next == null) {
 							Alert alert = new Alert(Alert.AlertType.ERROR);
+							alert.setResizable(true);
 							alert.initOwner(window);
 							alert.initModality(Modality.APPLICATION_MODAL);
 							alert.setTitle("The machine has finished");
@@ -1485,6 +1488,7 @@ class Editor {
 									public void run() {
 
 										Alert debugLog = new Alert(Alert.AlertType.ERROR);
+										debugLog.setResizable(true);
 										debugLog.initOwner(window);
 										debugLog.initModality(Modality.APPLICATION_MODAL);
 										ButtonType moreDebug = new ButtonType("Continue with breakpoint set");
@@ -1569,6 +1573,7 @@ class Editor {
 				currentMachine.getTape().refreshTapeDisplay();
 
 				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.setResizable(true);
 				alert.initOwner(window);
 				alert.initModality(Modality.APPLICATION_MODAL);
 				alert.setTitle("The machine has finished");
@@ -1931,6 +1936,7 @@ class Editor {
 	public void showException(Exception e){
 		System.out.println(e);
 		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setResizable(true);
 		alert.initOwner(window);
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.setTitle("An Exception has Occurred!");

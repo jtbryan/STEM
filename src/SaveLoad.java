@@ -62,6 +62,7 @@ public class SaveLoad {
             catch (IOException e) {
                 /* Error occured during saving. */
                 Alert saveError = new Alert(Alert.AlertType.ERROR);
+                saveError.setResizable(true);
                 saveError.initOwner(window);
                 saveError.initModality(Modality.APPLICATION_MODAL);
                 saveError.setTitle("Error Saving");
@@ -107,6 +108,7 @@ public class SaveLoad {
                 } else {
                     // Not a valid header format, display a message and return false
                     Alert invalidFileType = new Alert(Alert.AlertType.INFORMATION);
+                    invalidFileType.setResizable(true);
                     invalidFileType.setTitle("Invalid File");
                     invalidFileType.setHeaderText("Incorrect File header.");
                     invalidFileType.initOwner(window);
@@ -119,6 +121,7 @@ public class SaveLoad {
             catch (Exception e) {
                 /* Error occured. */
                 Alert fileError = new Alert(Alert.AlertType.ERROR);
+                fileError.setResizable(true);
                 fileError.setTitle("File Error");
                 fileError.setHeaderText("Ran into a problem loading that file!");
                 fileError.setContentText(e.getMessage());
