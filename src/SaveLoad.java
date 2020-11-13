@@ -82,8 +82,8 @@ public class SaveLoad {
         /* Get a file to load from the user. */
         Machine loadMachine = new Machine();
         FileChooser chooser = new FileChooser();
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text Files", "*");
-        chooser.getExtensionFilters().add(filter);
+        //FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text Files", "*");
+        //chooser.getExtensionFilters().add(filter);
 
         chooser.setTitle("Pick a Turing Machine file");
         File file = chooser.showOpenDialog(window);
