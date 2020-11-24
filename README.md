@@ -35,6 +35,37 @@ sudo apt install openjfx
   - run ``javac -encoding utf8 -d out/classes src/*.java``
   - run ``jar cvfm out/STEM.jar src/META-INF/MANIFEST.MF -C out/classes/ . -C src/ checkmark.png``
   - After this has finished use the command ``java -jar out/STEM.jar``
+
+
+
+- <strong>Easiest Usage</strong> 
+  - Download the javafx SDK from [JavaFx Gluon](https://gluonhq.com/products/javafx/) and install where ever you wish
+  - Make sure your JRE is JRE version 10 or higher. 
+  - Make a shell script file, with the contents that are below.
+    - Change the path variables to where your JRE/JavaFXSDK are located. The paths that are in the example are what's used for running the program on the Hydra machines. 
+  - run "souce openjfx.sh" or whatever you name the shell script
+  - Then run the program by executing javafx STEM.jar
+  - If you are doing this on Windows: it is better to use a Linux subsystem, such as [Git Bash](https://gitforwindows.org/).
+  - If you are running this on the Hydra/Tesla machines, simply writing this script, sourcing it, and executing should work. 
+
+```
+# Shell script for linking and running STEM.jar. The paths are set for what's on the Tesla/Hydra machines. 
+#   You will need to update these paths if you're running it on your own machine. 
+
+# path to the JRE - Update to where java is installed on your machine
+export JAVA_HOME=/usr/lib/jvm/jre-14
+
+# path to the javafx SDK. Update to where it is installed on your machine
+export JAVAFX_HOME=/opt/eecs/javafx-sdk-11.0.2
+
+# update the path
+export PATH=$JAVA_HOME/bin:$PATH
+
+export CLASSPATH=$JAVA_HOME/jre/lib/:$JAVAFX_HOME/lib
+
+# make an alias for running the program
+alias javafx="$JAVA_HOME/bin/java --module-path $JAVAFX_HOME/lib --add-modules javafx.controls -jar"
+```
   
 ### License
 Simple Turing machine EMulator (STEM)  
