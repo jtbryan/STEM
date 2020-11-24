@@ -43,10 +43,10 @@ sudo apt install openjfx
   - Make sure your JRE is JRE version 10 or higher. 
   - Make a shell script file, with the contents that are below.
     - Change the path variables to where your JRE/JavaFXSDK are located. The paths that are in the example are what's used for running the program on the Hydra machines. 
-  - run "souce openjfx.sh" or whatever you name the shell script
-  - Then run the program by executing javafx STEM.jar
+  - run ``source openjfx.sh`` or whatever you name the shell script
+  - Then run the program by executing ``javafx STEM.jar``
   - If you are doing this on Windows: it is better to use a Linux subsystem, such as [Git Bash](https://gitforwindows.org/).
-  - If you are running this on the Hydra/Tesla machines, simply writing this script, sourcing it, and executing should work. 
+  - If you are running this on the University of Tennessee's Hydra/Tesla machines, simply writing this script, sourcing it, and executing should work. 
 
 ```
 # Shell script for linking and running STEM.jar. The paths are set for what's on the Tesla/Hydra machines. 
